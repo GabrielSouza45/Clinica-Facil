@@ -1,0 +1,15 @@
+button{
+    width: 100%;
+    height: 45px;
+    border: none;
+    background-color: var(--cor-primaria);
+
+    :hover {
+        background-color: var(--cor-secundaria);
+    }
+
+}
+
+.botao-arredondado{
+  border-radius: 20px;
+}

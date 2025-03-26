@@ -1,0 +1,23 @@
+main {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .superior {
+    width: 100%;
+    height: 250px;
+    margin-bottom: 15px;
+  }
+
+  .inferior {
+    width: 100%;
+    padding: 15px;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+

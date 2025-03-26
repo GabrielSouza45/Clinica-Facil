@@ -1,1 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+@import 'ngx-toastr/toastr';
+
+:root{
+    --background: #E0E0E0;
+    --cor-primaria: #13426E;
+    --cor-secundaria: #2195C6;
+    --cor-input: #E8F0FE;
+
+    --navbar-heigth: 80px;
+    --navbar-icon-heigth: 50px;
+    --navbar-color: #f8f9fA;
+}
+
+body{
+    background-color: var(--background);
+}

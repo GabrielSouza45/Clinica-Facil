@@ -1,0 +1,24 @@
+<div class="input-wrapper">
+  <label *ngIf="addLabel" [style]="styleLabel" [for]="name">{{ label }}</label>
+  <div class="input-content">
+    <textarea
+        [name]="name"
+        [placeholder]="placeHolder"
+        class="form-control"
+        [(ngModel)]="value"
+        [maxLength]="maxLength"
+        [disabled]="disabled"
+        [style]="style"
+        (input)="onInput($event)"
+        [ngClass]="{ 'no-resize': !isResizable }"
+        [value]="value"
+    ></textarea>
+    <div class="icon">
+        <ng-content>
+
+        </ng-content>
+    </div>
+</div>
+
+
+</div>
