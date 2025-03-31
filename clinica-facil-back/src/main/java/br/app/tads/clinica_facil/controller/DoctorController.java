@@ -1,8 +1,8 @@
 package br.app.tads.clinica_facil.controller;
 
 import br.app.tads.clinica_facil.infra.responseBuilder.ResponseBuilder;
-import br.app.tads.clinica_facil.model.Patient;
-import br.app.tads.clinica_facil.service.PatientService;
+import br.app.tads.clinica_facil.model.Doctor;
+import br.app.tads.clinica_facil.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,88 +10,88 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/patient")
+@RequestMapping("/doctor")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-public class PatientController {
+public class DoctorController {
 
     @Autowired
-    private PatientService patientService;
+    private DoctorService doctorService;
     @Autowired
     private ResponseBuilder responseBuilder;
 
 
     @GetMapping("/get-all-actives")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getAllPatientsActives() {
-        return patientService.getAllActive();
+    public ResponseEntity<?> getAllDoctorsActives() {
+        return doctorService.getAllActive();
     }
 
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getAllPatients() {
-        return patientService.getAll();
+    public ResponseEntity<?> getAllDoctors() {
+        return doctorService.getAll();
     }
 
     @GetMapping("/get-name")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
-    public ResponseEntity<?> getPatientsByName(@RequestBody Patient patient) {
-        if (patient.getName().isBlank())
+    public ResponseEntity<?> getDoctorsByName(@RequestBody Doctor doctor) {
+        if (doctor.getName().isBlank())
             return responseBuilder.build("Nome não pode ser nulo!", HttpStatus.BAD_REQUEST);
 
-        return patientService.getByName(patient);
+        return doctorService.getByName(doctor);
 
     }
 
     @GetMapping("/get-email")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
-    public ResponseEntity<?> getPatientsByEmail(@RequestBody Patient patient) {
-        if (patient.getEmail().isBlank())
+    public ResponseEntity<?> getDoctorsByEmail(@RequestBody Doctor doctor) {
+        if (doctor.getEmail().isBlank())
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
 
-        return patientService.getByEmail(patient);
+        return doctorService.getByEmail(doctor);
 
     }
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> addPatients(@RequestBody Patient patient) {
+    public ResponseEntity<?> addDoctors(@RequestBody Doctor doctor) {
         if (
-                patient.getName().isBlank()
-                        || patient.getCpf().isBlank()
-                        || patient.getPassword().isBlank()
-                        || patient.getBirth() == null
-                        || patient.getEmail().isBlank()
+                doctor.getName().isBlank()
+                        || doctor.getPassword().isBlank()
+                        || doctor.getBirth() == null
+                        || doctor.getEmail().isBlank()
+                        || doctor.getCrm().isBlank()
         ) {
             return responseBuilder.build("Um ou mais dados são nulos, por favor, verifique e envie novamente", HttpStatus.BAD_REQUEST);
         }
 
-        return patientService.add(patient);
+        return doctorService.add(doctor);
     }
 
     @PutMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> editPatients(@RequestBody Patient patient) {
+    public ResponseEntity<?> editDoctors(@RequestBody Doctor doctor) {
         if (
-                patient.getName().isBlank()
-                        || patient.getCpf().isBlank()
-                        || patient.getPassword().isBlank()
-                        || patient.getBirth() == null
-                        || patient.getEmail().isBlank()
+                doctor.getName().isBlank()
+                        || doctor.getCrm().isBlank()
+                        || doctor.getPassword().isBlank()
+                        || doctor.getBirth() == null
+                        || doctor.getEmail().isBlank()
         ) {
             return responseBuilder.build("Um ou mais dados são nulos, por favor, verifique e envie novamente", HttpStatus.BAD_REQUEST);
         }
 
-        return patientService.edit(patient);
+        return doctorService.edit(doctor);
     }
 
     @PutMapping("/delete")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deletePatients(@RequestBody Patient patient) {
-        if (patient.getEmail().isBlank()) {
+    public ResponseEntity<?> deleteDoctors(@RequestBody Doctor doctor) {
+        if (doctor.getEmail().isBlank()) {
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
         }
 
-        return patientService.delete(patient);
+        return doctorService.delete(doctor);
     }
-    
+
 }

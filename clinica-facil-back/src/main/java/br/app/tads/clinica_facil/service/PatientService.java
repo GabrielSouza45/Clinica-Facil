@@ -83,6 +83,4 @@ public class PatientService {
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
-
-
 }

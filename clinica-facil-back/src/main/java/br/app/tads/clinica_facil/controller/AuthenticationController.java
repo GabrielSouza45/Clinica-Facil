@@ -15,11 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.Array;
-import java.util.Collection;
 
 @RestController
 @RequestMapping("/auth")
@@ -56,7 +52,7 @@ public class AuthenticationController {
             else if (roleDoctor)
                 userAuthorized = getUserDoctor(auth);
             else if (rolePatient)
-                userAuthorized = getUserPatient(auth);
+                userAuthorized = getUserDoctor(auth);
             else
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
@@ -88,7 +84,7 @@ public class AuthenticationController {
     }
 
     private Auth getUserPatient(Authentication auth) {
-        var token = tokenService.generateToken((Patient) auth.getPrincipal());
+        var token = tokenService.generateToken((Doctor) auth.getPrincipal());
 
         Long id = ((Patient) auth.getPrincipal()).getId();
         String name = ((Patient) auth.getPrincipal()).getName();
