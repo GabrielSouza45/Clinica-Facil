@@ -13,4 +13,10 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     Patient findByEmailAndStatus(String email, Status status);
 
     Patient findByEmail(String mail);
+
+    boolean existsByEmail(String email);
+
+    List<Patient> findByNameAndStatus(String name, Status status);
+
+    List<Patient> findByNameContainingAndStatus(String name, Status status);
 }

@@ -23,6 +23,8 @@ public class Admin implements UserDetails, IUser {
     private String email;
     private String password;
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     public Admin() {

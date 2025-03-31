@@ -26,6 +26,8 @@ public class Patient implements UserDetails, IUser {
     private String name;
     private Date birth;
     private String cpf;
+
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     public Patient() {
