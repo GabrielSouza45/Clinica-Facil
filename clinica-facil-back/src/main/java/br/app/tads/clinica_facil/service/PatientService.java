@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PatientService {
@@ -38,6 +39,10 @@ public class PatientService {
         return responseBuilder.build(saved, HttpStatus.CREATED);
     }
 
+    public Optional<Patient> getPatientById(Long id) {
+        return patientRepository.findById(id);
+    }
+
     public ResponseEntity<?> getByName(Patient patient) {
 
         List<Patient> patients = patientRepository.findByNameContainingAndStatus(patient.getName(), Status.ACTIVE);
@@ -45,6 +50,7 @@ public class PatientService {
         return new ResponseEntity<>(patients, HttpStatus.OK);
 
     }
+    
 
     public ResponseEntity<?> getByEmail(Patient patient) {
 
@@ -83,4 +89,6 @@ public class PatientService {
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
+
+    
 }
