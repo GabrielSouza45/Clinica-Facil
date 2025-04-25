@@ -1,0 +1,124 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 main-div">
+  <a
+    href="/pagina-inicial"
+    class="d-flex align-items-center mb-3 mb-md-0 link-dark text-decoration-none"
+  >
+    <span class="fs-4 titulo">
+      <img src="assets/logo.png" alt="Logo Clinica facil." />
+      Clínica Fácil
+    </span>
+  </a>
+
+  <hr />
+
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a
+        [routerLink]="['/home']"
+        [ngClass]="{
+          active: isActive('/home'),
+          'link-dark': !isActive('/home')
+        }"
+        class="nav-link"
+        [attr.aria-current]="isActive('/home') ? 'page' : null"
+      >
+        <i class="bi bi-house"></i>
+        Home
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="administrador">
+      <a
+        [routerLink]="['/cadastrar-usuarios']"
+        [ngClass]="{
+          active: isActive('/cadastrar-usuarios'),
+          'link-dark': !isActive('/cadastrar-usuarios')
+        }"
+        class="nav-link"
+        [attr.aria-current]="isActive('/cadastrar-usuarios') ? 'page' : null"
+      >
+        <i class="bi bi-people"></i>
+        Cadastrar Usuários
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="doutor || administrador || paciente">
+      <a
+        [routerLink]="['/consultas-agendadas']"
+        [ngClass]="{
+          active: isActive('/consultas-agendadas'),
+          'link-dark': !isActive('/consultas-agendadas')
+        }"
+        class="nav-link"
+        [attr.aria-current]="isActive('/consultas-agendadas') ? 'page' : null"
+      >
+        <i class="bi bi-clipboard"></i>
+        Consultas Agendadas
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="administrador">
+      <a
+        [routerLink]="['/agendamento']"
+        [ngClass]="{
+          active: isActive('/agendamento'),
+          'link-dark': !isActive('/agendamento')
+        }"
+        class="nav-link"
+        [attr.aria-current]="isActive('/agendamento') ? 'page' : null"
+      >
+        <i class="bi bi-clipboard-plus"></i>
+        Agendar Consulta
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="doutor || administrador || paciente">
+      <a
+        [routerLink]="['/consultar-prontuario']"
+        [ngClass]="{
+          active: isActive('/consultar-prontuario'),
+          'link-dark': !isActive('/consultar-prontuario')
+        }"
+        class="nav-link"
+        [attr.aria-current]="isActive('/consultar-prontuario') ? 'page' : null"
+      >
+      <i class="bi bi-journal-text"></i>
+        Consultar Prontuários
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="doutor">
+      <a
+        [routerLink]="['/adicionar-prontuario']"
+        [ngClass]="{
+          active: isActive('/adicionar-prontuario'),
+          'link-dark': !isActive('/adicionar-prontuario')
+        }"
+        class="nav-link"
+        [attr.aria-current]="isActive('/adicionar-prontuario') ? 'page' : null"
+      >
+      <i class="bi bi-journal-plus"></i>
+        Adicionar Prontuário
+      </a>
+    </li>
+  </ul>
+
+
+
+  <hr />
+
+  <div class="dropdown">
+    <a
+      href="#"
+      class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle"
+      id="dropdownUser2"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      <strong>{{ userLogado }}</strong>
+    </a>
+    <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+      <li><a class="dropdown-item" (click)="logOut()">Sair</a></li>
+    </ul>
+  </div>
+</div>

@@ -20,7 +20,7 @@ export class LoginService {
     );
 
     return this.httpClient
-      .post<LoginResponse>("http://localhost:8080/auth", this.loginObj)
+      .post<LoginResponse>("http://localhost:8080/auth/login", this.loginObj)
       .pipe(
         tap((value) => {
           sessionStorage.setItem("token", value.token);

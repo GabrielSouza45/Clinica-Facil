@@ -7,6 +7,7 @@ import br.app.tads.clinica_facil.model.Admin;
 import br.app.tads.clinica_facil.model.Doctor;
 import br.app.tads.clinica_facil.model.Patient;
 import br.app.tads.clinica_facil.model.enums.Groups;
+import br.app.tads.clinica_facil.model.interfaces.IUser;
 import br.app.tads.clinica_facil.model.records.Auth;
 import br.app.tads.clinica_facil.model.records.Login;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,19 +43,29 @@ public class AuthenticationController {
             var auth = this.authenticationManager.authenticate(usernamePassword);
             String authority = auth.getAuthorities().toArray()[0].toString();
 
-            boolean roleAdmin = authority.equals("ROLE_ADMIN");
-            boolean roleDoctor = authority.equals("ROLE_DOCTOR");
-            boolean rolePatient = authority.equals("ROLE_PATIENT");
-
+            Groups group = null;
             Auth userAuthorized = null;
-            if (roleAdmin)
-                userAuthorized = getUserAdmin(auth);
-            else if (roleDoctor)
-                userAuthorized = getUserDoctor(auth);
-            else if (rolePatient)
-                userAuthorized = getUserDoctor(auth);
-            else
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+            switch (authority){
+                case "ROLE_ADMIN":
+                    group = Groups.ADMIN;
+                    break;
+                case "ROLE_DOCTOR":
+                    group = Groups.DOCTOR;
+                    break;
+                case "ROLE_PATIENT":
+                    group = Groups.PATIENT;
+                    break;
+                default:
+                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+
+            var token = tokenService.generateToken((IUser) auth.getPrincipal());
+
+            Long id = ((IUser) auth.getPrincipal()).getId();
+            String name = ((IUser) auth.getPrincipal()).getName();
+
+            userAuthorized = new Auth(token, name, group, id);
 
             return ResponseEntity.ok(userAuthorized);
 
@@ -62,36 +73,4 @@ public class AuthenticationController {
             return responseBuilder.build(e.getMessage(), HttpStatus.UNAUTHORIZED);
         }
     }
-
-    private Auth getUserAdmin(Authentication auth) {
-        var token = tokenService.generateToken((Admin) auth.getPrincipal());
-
-        Long id = ((Admin) auth.getPrincipal()).getId();
-        String name = ((Admin) auth.getPrincipal()).getName();
-        Groups group = Groups.ADMIN;
-
-        return new Auth(token, name, group, id);
-    }
-
-    private Auth getUserDoctor(Authentication auth) {
-        var token = tokenService.generateToken((Doctor) auth.getPrincipal());
-
-        Long id = ((Doctor) auth.getPrincipal()).getId();
-        String name = ((Doctor) auth.getPrincipal()).getName();
-        Groups group = Groups.DOCTOR;
-
-        return new Auth(token, name, group, id);
-    }
-
-    private Auth getUserPatient(Authentication auth) {
-        var token = tokenService.generateToken((Doctor) auth.getPrincipal());
-
-        Long id = ((Patient) auth.getPrincipal()).getId();
-        String name = ((Patient) auth.getPrincipal()).getName();
-        Groups group = Groups.PATIENT;
-
-        return new Auth(token, name, group, id);
-    }
-
-
 }

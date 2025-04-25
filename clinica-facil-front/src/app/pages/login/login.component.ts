@@ -48,13 +48,6 @@ export class LoginComponent {
       });
   }
 
-  goToRegister(){
-    //
-    //
-    //
-    //
-  }
-
   private redirectUser() {
     this.router.navigate(['/home']);
   }
