@@ -58,4 +58,8 @@ export class LoginComponent {
       password: new FormControl('', Validators.required)
     });
   }
+
+  redirectToRegister(): void {
+    this.router.navigate(['/register']);
+  }
 }
