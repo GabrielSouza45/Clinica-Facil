@@ -12,6 +12,10 @@ export class ProntuarioService extends CrudService<any>{
     private httpCliente: HttpClient,
     private toastr: ToastrService
   ) {
-    super('/', httpCliente, toastr);
+    super('/medical-records', httpCliente, toastr);
+  }
+
+  cadastrar() {
+    
   }
 }
