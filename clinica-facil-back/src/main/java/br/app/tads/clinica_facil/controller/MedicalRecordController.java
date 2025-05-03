@@ -7,6 +7,7 @@ import br.app.tads.clinica_facil.model.Exam;
 import br.app.tads.clinica_facil.model.Revenue;
 import br.app.tads.clinica_facil.service.MedicalRecordService;
 import br.app.tads.clinica_facil.service.PatientService;
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -71,12 +72,15 @@ public class MedicalRecordController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MedicalRecord> addConsultationToMedicalRecord(
             @PathVariable Long medicalRecordId, @RequestBody Consultation consultation) {
+                System.out.println("BATEUUUUU");
         try {
             MedicalRecord updatedMedicalRecord = medicalRecordService.addConsultationToMedicalRecord(medicalRecordId, consultation);
             return ResponseEntity.ok(updatedMedicalRecord);
-        } catch (IllegalArgumentException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }     
     }
 
     @PostMapping("/{medicalRecordId}/exams")

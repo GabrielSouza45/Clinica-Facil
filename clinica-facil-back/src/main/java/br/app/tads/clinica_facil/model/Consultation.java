@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "consultation")
 @EqualsAndHashCode(of = "id")
@@ -17,13 +19,9 @@ public class Consultation {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateTime; // Data e horário da consulta
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    private Long patientId;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    private Long doctorId;
 
     private String specialty; // Especialidade da consulta (ex: "Cardiologia")
 
@@ -33,20 +31,22 @@ public class Consultation {
 
     @ManyToOne
     @JoinColumn(name = "medical_record_id")
+    @JsonBackReference
     private MedicalRecord medicalRecord; 
 
-    public Consultation(Long id, Date dateTime, Patient patient, Doctor doctor, String specialty, Report report,
+    public Consultation(Long id, Date dateTime, long patientId, long doctorId, String specialty, Report report,
             MedicalRecord medicalRecord) {
         this.id = id;
         this.dateTime = dateTime;
-        this.patient = patient;
-        this.doctor = doctor;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
         this.specialty = specialty;
         this.report = report;
         this.medicalRecord = medicalRecord;
     }
 
-    public Consultation() {}
+    public Consultation() {
+    }
 
     public Long getId() {
         return id;
@@ -64,20 +64,20 @@ public class Consultation {
         this.dateTime = dateTime;
     }
 
-    public Patient getPatient() {
-        return patient;
+    public void setPatientId(long patientId) {
+        this.patientId = patientId;
     }
 
-    public void setPatient(Patient patient) {
-        this.patient = patient;
+    public Long getPatientId() {
+        return patientId;
     }
 
-    public Doctor getDoctor() {
-        return doctor;
+    public void setDoctorId(long doctorId) {
+        this.doctorId = doctorId;
     }
 
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
+    public Long getDoctorId() {
+        return doctorId;
     }
 
     public String getSpecialty() {

@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "revenue")
 @EqualsAndHashCode(of = "id")
@@ -35,6 +37,7 @@ public class Revenue {
 
     @ManyToOne
     @JoinColumn(name = "medical_record_id")
+    @JsonBackReference
     private MedicalRecord medicalRecord;
 
     public Revenue() {

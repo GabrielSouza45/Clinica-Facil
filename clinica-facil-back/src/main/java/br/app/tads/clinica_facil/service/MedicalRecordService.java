@@ -5,7 +5,10 @@ import br.app.tads.clinica_facil.model.Patient;
 import br.app.tads.clinica_facil.model.Consultation;
 import br.app.tads.clinica_facil.model.Exam;
 import br.app.tads.clinica_facil.model.Revenue;
+import br.app.tads.clinica_facil.repository.ConsultationRepository;
 import br.app.tads.clinica_facil.repository.MedicalRecordRepository;
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,9 @@ public class MedicalRecordService {
 
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
+
+    @Autowired
+    private ConsultationRepository consultationRepository;
 
     public List<MedicalRecord> getMedicalRecordsByPatient(Patient patient) {
         return medicalRecordRepository.findByPatient(patient);
@@ -33,15 +39,14 @@ public class MedicalRecordService {
     }
 
     public MedicalRecord addConsultationToMedicalRecord(Long medicalRecordId, Consultation consultation) {
-        Optional<MedicalRecord> optionalMedicalRecord = medicalRecordRepository.findById(medicalRecordId);
-        if (optionalMedicalRecord.isPresent()) {
-            MedicalRecord medicalRecord = optionalMedicalRecord.get();
-            consultation.setMedicalRecord(medicalRecord);  
-            medicalRecord.getConsultations().add(consultation);  
-            return medicalRecordRepository.save(medicalRecord);
-        } else {
-            throw new IllegalArgumentException("Prontuário não encontrado");
-        }
+        MedicalRecord medicalRecord = medicalRecordRepository.findById(medicalRecordId)
+            .orElseThrow(() -> new EntityNotFoundException("Prontuário não encontrado"));
+        
+            consultation.setMedicalRecord(medicalRecord);
+            medicalRecord.getConsultations().add(consultation);
+            medicalRecordRepository.save(medicalRecord);
+    
+        return medicalRecordRepository.save(medicalRecord);
     }
 
     public MedicalRecord addExamToMedicalRecord(Long medicalRecordId, Exam exam) {
