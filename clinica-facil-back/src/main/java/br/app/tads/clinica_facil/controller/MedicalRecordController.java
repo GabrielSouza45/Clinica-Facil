@@ -28,23 +28,8 @@ public class MedicalRecordController {
     @Autowired
     private MedicalRecordService medicalRecordService;
 
-    
-
     MedicalRecordController(PatientService patientService) {
         this.patientService = patientService;
-    }
-
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> createMedicalRecord(@RequestBody Long patientId) {
-        Optional<Patient> optionalPatient = patientService.getPatientById(patientId);
-        if (optionalPatient.isPresent()) {
-            Patient patient = optionalPatient.get();
-            MedicalRecord medicalRecord = medicalRecordService.createMedicalRecord(patient);
-            return ResponseEntity.status(HttpStatus.CREATED).body(medicalRecord);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
     }
 
     @GetMapping("/by-patient/{patientId}")

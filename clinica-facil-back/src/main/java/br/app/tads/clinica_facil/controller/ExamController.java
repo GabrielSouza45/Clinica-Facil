@@ -1,9 +1,11 @@
 package br.app.tads.clinica_facil.controller;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,32 +24,25 @@ public class ExamController {
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllExams() {
-        return examService.getAllExams();
+        List<Exam> exams = (List<Exam>) examService.getAllExams(); 
+        if (exams.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Nenhum exame encontrado.");
+        }
+        return ResponseEntity.ok(exams); 
     }
 
     @GetMapping("/by-patient/{patientId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')") 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
     public ResponseEntity<?> getExamsByPatient(@PathVariable Long patientId) {
-        return examService.getExamsByPatient(patientId);
-    }
-
-    @GetMapping("/by-report/{reportId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')") 
-    public ResponseEntity<?> getExamsByReport(@PathVariable Long reportId) {
-        return examService.getExamsByReport(reportId);
+        return ResponseEntity.ok(examService.getExamsByPatient(patientId));
     }
 
     @GetMapping("/by-date")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')") 
-    public ResponseEntity<?> getExamsByDate(@RequestParam("date") 
-        @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    public ResponseEntity<?> getExamsByDate(
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return examService.getExamsByDate(date);
-    }
-
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<?> createExam(@RequestBody Exam exam) {
-        return examService.createExam(exam);
     }
 
     @PutMapping("/edit")

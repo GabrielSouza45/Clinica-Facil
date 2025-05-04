@@ -3,9 +3,10 @@ package br.app.tads.clinica_facil.model;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "consultation")
@@ -16,25 +17,27 @@ public class Consultation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTime; // Data e horário da consulta
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "birth")
+    private LocalDateTime dateTime;
 
     private Long patientId;
 
     private Long doctorId;
 
-    private String specialty; // Especialidade da consulta (ex: "Cardiologia")
+    private String specialty;
 
     @OneToOne
     @JoinColumn(name = "report_id")
+    @JsonBackReference(value = "report-consultation")
     private Report report;
 
     @ManyToOne
     @JoinColumn(name = "medical_record_id")
-    @JsonBackReference
-    private MedicalRecord medicalRecord; 
+    @JsonBackReference(value = "medicalRecord-consultation")
+    private MedicalRecord medicalRecord;
 
-    public Consultation(Long id, Date dateTime, long patientId, long doctorId, String specialty, Report report,
+    public Consultation(Long id, LocalDateTime dateTime, Long patientId, Long doctorId, String specialty, Report report,
             MedicalRecord medicalRecord) {
         this.id = id;
         this.dateTime = dateTime;
@@ -56,14 +59,6 @@ public class Consultation {
         this.id = id;
     }
 
-    public Date getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(Date dateTime) {
-        this.dateTime = dateTime;
-    }
-
     public void setPatientId(long patientId) {
         this.patientId = patientId;
     }
@@ -78,6 +73,14 @@ public class Consultation {
 
     public Long getDoctorId() {
         return doctorId;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getSpecialty() {
@@ -103,6 +106,5 @@ public class Consultation {
     public void setMedicalRecord(MedicalRecord medicalRecord) {
         this.medicalRecord = medicalRecord;
     }
-
 
 }

@@ -21,13 +21,9 @@ public class MedicalRecordService {
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
 
-    @Autowired
-    private ConsultationRepository consultationRepository;
-
     public List<MedicalRecord> getMedicalRecordsByPatient(Patient patient) {
         return medicalRecordRepository.findByPatient(patient);
     }
-
 
     public MedicalRecord createMedicalRecord(Patient patient) {
         List<MedicalRecord> existing = medicalRecordRepository.findByPatient(patient);

@@ -1,8 +1,8 @@
 package br.app.tads.clinica_facil.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.EqualsAndHashCode;
 import jakarta.persistence.CascadeType;
@@ -12,10 +12,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
 
 @Entity(name = "report")
 @Table(name = "report")
@@ -35,21 +33,16 @@ public class Report {
     private Doctor doctor;
 
     private Date issueDate;
-    private String reasons;//Razões para a consulta
-    private String clinicalHistory;//Antecedentes pessoais relevantes(doenças, cirugias, alergias, etc.)
+    private String reasons;// Razões para a consulta
+    private String clinicalHistory;// Antecedentes pessoais relevantes(doenças, cirugias, alergias, etc.)
     private String diagnosis;
-    
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Revenue> revenues = new ArrayList<>();//Medicamentos prescritos, procedimentos realizados ou recomendados, afastamento (se necessário), com CID e período, ancaminhamentos (ex: para especialistas)
-
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Exam> exams = new ArrayList<>();
 
     @OneToOne(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "report-consultation")
     private Consultation consultation;
-    
+
     public Report(Long id, Patient patient, Doctor doctor, Date issueDate, String reasons, String clinicalHistory,
-        String diagnosis, Consultation consultation, List<Revenue> revenues, List<Exam> exams) {
+            String diagnosis, Consultation consultation) {
         this.id = id;
         this.patient = patient;
         this.doctor = doctor;
@@ -58,8 +51,6 @@ public class Report {
         this.clinicalHistory = clinicalHistory;
         this.diagnosis = diagnosis;
         this.consultation = consultation;
-        this.revenues = (revenues != null) ? revenues : new ArrayList<>();
-        this.exams = (exams != null) ? exams : new ArrayList<>();
     }
 
     public Report() {
@@ -121,22 +112,6 @@ public class Report {
         this.diagnosis = diagnosis;
     }
 
-    public List<Revenue> getRevenues() {
-        return revenues;
-    }
 
-    public void setRevenues(List<Revenue> revenues) {
-        this.revenues = revenues;
-    }
-
-    public List<Exam> getExams() {
-        return exams;
-    }
-
-    public void setExams(List<Exam> exams) {
-        this.exams = exams;
-    }    
-
-    
 
 }
