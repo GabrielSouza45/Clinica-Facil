@@ -22,15 +22,15 @@ public class MedicalRecord {
     private Patient patient;
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "medicalRecord-consultation")
     private List<Consultation> consultations = new ArrayList<>();
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "medicalRecord-exam")
     private List<Exam> exams = new ArrayList<>(); 
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "medicalRecord-revenue")
     private List<Revenue> revenues = new ArrayList<>(); 
 
     public MedicalRecord() {}

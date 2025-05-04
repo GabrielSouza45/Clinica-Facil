@@ -1,6 +1,5 @@
 package br.app.tads.clinica_facil.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -30,13 +29,13 @@ public class ReportService {
     @Autowired
     private DoctorRepository doctorRepository;
 
-    public ResponseEntity<?> getPatientReport(Patient patient) {
-        Optional<Patient> optionalPatient = patientRepository.findById(patient.getId());
+    public ResponseEntity<?> getPatientReport(Long patientId) {
+        Optional<Patient> optionalPatient = patientRepository.findById(patientId);
         if (optionalPatient.isEmpty()) {
             return responseBuilder.build("Paciente informado não encontrado.", HttpStatus.BAD_REQUEST);
         }
 
-        List<Report> reports = reportRepository.findByPatientId(patient.getId());
+        List<Report> reports = reportRepository.findByPatientId(patientId);
         if (reports.isEmpty()) {
             return responseBuilder.build("Nenhum relatório encontrado para o paciente.", HttpStatus.NOT_FOUND);
         }
@@ -62,7 +61,8 @@ public class ReportService {
 
     public ResponseEntity<?> add(Report report) {
         ResponseEntity<?> validationResponse = validateDoctorAndPatient(report);
-        if (validationResponse != null) return validationResponse;
+        if (validationResponse != null)
+            return validationResponse;
 
         Report saved = reportRepository.save(report);
         return ResponseEntity.ok(saved);
@@ -73,32 +73,29 @@ public class ReportService {
             return responseBuilder.build("ID do relatório não informado.", HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Report> optionalReport = reportRepository.findById(report.getId());
-        if (optionalReport.isEmpty()) {
+        Optional<Report> existingReportOptional = reportRepository.findById(report.getId());
+
+        if (existingReportOptional.isEmpty()) {
             return responseBuilder.build("Relatório não encontrado.", HttpStatus.NOT_FOUND);
         }
 
-        ResponseEntity<?> validationResponse = validateDoctorAndPatient(report);
-        if (validationResponse != null) return validationResponse;
+        Report existingReport = existingReportOptional.get();
+        existingReport.setPatient(report.getPatient());
+        existingReport.setDoctor(report.getDoctor());
+        existingReport.setIssueDate(report.getIssueDate());
+        existingReport.setReasons(report.getReasons());
+        existingReport.setClinicalHistory(report.getClinicalHistory());
+        existingReport.setDiagnosis(report.getDiagnosis());
 
-        Report editable = optionalReport.get();
-        editable.setClinicalHistory(report.getClinicalHistory());
-        editable.setDiagnosis(report.getDiagnosis());
-        editable.setDoctor(report.getDoctor());
-        editable.setIssueDate(report.getIssueDate());
-        editable.setPatient(report.getPatient());
-        editable.setReasons(report.getReasons());
-        editable.setRevenues(report.getRevenues() != null ? report.getRevenues() : new ArrayList<>());
-        editable.setExams(report.getExams() != null ? report.getExams() : new ArrayList<>());
+        reportRepository.save(existingReport);
 
-        reportRepository.save(editable);
-        return ResponseEntity.ok(editable);
+        return responseBuilder.build("Relatório atualizado com sucesso.", HttpStatus.OK);
+
     }
 
-    
     private ResponseEntity<?> validateDoctorAndPatient(Report report) {
         if (report.getPatient() == null || report.getPatient().getId() == null ||
-            report.getDoctor() == null || report.getDoctor().getId() == null) {
+                report.getDoctor() == null || report.getDoctor().getId() == null) {
             return responseBuilder.build("Paciente ou Médico não informado corretamente.", HttpStatus.BAD_REQUEST);
         }
 

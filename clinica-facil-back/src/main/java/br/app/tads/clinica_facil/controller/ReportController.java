@@ -30,36 +30,36 @@ public class ReportController {
     private ReportService reportService;
     @Autowired
     private ResponseBuilder responseBuilder;
-    @Autowired PatientService patientService;
+    @Autowired
+    PatientService patientService;
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?>getAllReports(){
+    public ResponseEntity<?> getAllReports() {
         return reportService.getAll();
     }
 
-    @PostMapping("/by-patient")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')") 
-    public ResponseEntity<?> getReportByPatient(@RequestBody Patient patient) {
-        if (patient == null || patient.getId() == null) {
-            return responseBuilder.build("É obrigatório informar um paciente para realizar uma busca!", HttpStatus.BAD_REQUEST);
+    @GetMapping("/by-patient")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    public ResponseEntity<?> getReportByPatient(@RequestParam Long patientId) {
+        if (patientId == null) {
+            return responseBuilder.build("É obrigatório informar um paciente para realizar uma busca!",
+                    HttpStatus.BAD_REQUEST);
         }
-    
-        return reportService.getPatientReport(patient);
+
+        return reportService.getPatientReport(patientId);
     }
 
     @GetMapping("/by-date")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')") 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
     public ResponseEntity<?> getReportAtDate(
-    @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date issueDate
-    ) {
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date issueDate) {
         if (issueDate.after(new Date())) {
             return responseBuilder.build("A data informada não pode estar no futuro.", HttpStatus.BAD_REQUEST);
         }
 
         return reportService.getReportByDate(issueDate);
     }
-
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('DOCTOR')")
@@ -75,11 +75,11 @@ public class ReportController {
     @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<?> editReport(@RequestBody Report report) {
         if (report == null || report.getId() == null) {
-            return responseBuilder.build("É obrigatório informar o relatório com ID para edição.", HttpStatus.BAD_REQUEST);
+            return responseBuilder.build("É obrigatório informar o relatório com ID para edição.",
+                    HttpStatus.BAD_REQUEST);
         }
 
-    return reportService.edit(report);
+        return reportService.edit(report);
     }
-
 
 }

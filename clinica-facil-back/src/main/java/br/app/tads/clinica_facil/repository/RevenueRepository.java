@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import br.app.tads.clinica_facil.model.Revenue;
 import br.app.tads.clinica_facil.model.Doctor;
 import br.app.tads.clinica_facil.model.Patient;
-import br.app.tads.clinica_facil.model.Report;
 
 public interface RevenueRepository extends JpaRepository<Revenue, Long> {
     
@@ -18,5 +17,4 @@ public interface RevenueRepository extends JpaRepository<Revenue, Long> {
 
     List<Revenue> findByDate(Date date);
 
-    List<Revenue> findByReport(Report report);
 }

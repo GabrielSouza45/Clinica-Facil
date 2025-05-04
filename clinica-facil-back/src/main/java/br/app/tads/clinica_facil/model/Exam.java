@@ -1,11 +1,11 @@
 package br.app.tads.clinica_facil.model;
 import lombok.EqualsAndHashCode;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
 
 @Entity
 @Table(name = "exam")
@@ -16,25 +16,21 @@ public class Exam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // Nome do exame (Ex: Hemograma, Raio-X)
-    private String description; // Descrição ou observações
-    private Date date; // Data do exame
-    private String results; // Resultados do exame
+    private String name; 
+    private String description; 
+    private Date date; 
+    private String results; 
 
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "report_id", nullable = true)
-    private Report report;
-
-    @ManyToOne
     @JoinColumn(name = "medical_record_id")
-    @JsonBackReference
+    @JsonBackReference(value = "medicalRecord-exam")
     private MedicalRecord medicalRecord;
 
-    public Exam(Long id, String name, String description, Date date, String results, Patient patient, Report report,
+    public Exam(Long id, String name, String description, Date date, String results, Patient patient,
             MedicalRecord medicalRecord) {
         this.id = id;
         this.name = name;
@@ -42,7 +38,6 @@ public class Exam {
         this.date = date;
         this.results = results;
         this.patient = patient;
-        this.report = report;
         this.medicalRecord = medicalRecord;
     }
 
@@ -95,14 +90,6 @@ public class Exam {
 
     public void setPatient(Patient patient) {
         this.patient = patient;
-    }
-
-    public Report getReport() {
-        return report;
-    }
-
-    public void setReport(Report report) {
-        this.report = report;
     }
 
     public MedicalRecord getMedicalRecord() {
