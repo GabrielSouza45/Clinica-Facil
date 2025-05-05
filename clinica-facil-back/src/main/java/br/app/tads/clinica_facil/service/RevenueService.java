@@ -1,6 +1,6 @@
 package br.app.tads.clinica_facil.service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,10 +11,11 @@ import org.springframework.stereotype.Service;
 
 import br.app.tads.clinica_facil.infra.responseBuilder.ResponseBuilder;
 import br.app.tads.clinica_facil.model.Doctor;
+import br.app.tads.clinica_facil.model.MedicalRecord;
 import br.app.tads.clinica_facil.model.Patient;
-import br.app.tads.clinica_facil.model.Report;
 import br.app.tads.clinica_facil.model.Revenue;
 import br.app.tads.clinica_facil.repository.DoctorRepository;
+import br.app.tads.clinica_facil.repository.MedicalRecordRepository;
 import br.app.tads.clinica_facil.repository.PatientRepository;
 import br.app.tads.clinica_facil.repository.RevenueRepository;
 
@@ -33,6 +34,9 @@ public class RevenueService {
     @Autowired
     private DoctorRepository doctorRepository;
 
+    @Autowired
+    private MedicalRecordRepository medicalRecordRepository;
+
     public ResponseEntity<?> getAll() {
         List<Revenue> revenues = revenueRepository.findAll();
 
@@ -47,9 +51,9 @@ public class RevenueService {
         if (id <= 0) {
             return responseBuilder.build("ID inválido.", HttpStatus.BAD_REQUEST);
         }
-    
+
         Optional<Revenue> revenueOpt = revenueRepository.findById(id);
-    
+
         return revenueOpt
                 .<ResponseEntity<?>>map(revenue -> responseBuilder.build(revenue, HttpStatus.OK))
                 .orElseGet(() -> responseBuilder.build("Receita não encontrada.", HttpStatus.NOT_FOUND));
@@ -60,12 +64,12 @@ public class RevenueService {
         if (patientOpt.isEmpty()) {
             return responseBuilder.build("Paciente não encontrado.", HttpStatus.NOT_FOUND);
         }
-    
+
         List<Revenue> revenues = revenueRepository.findByPatient(patientOpt.get());
         if (revenues.isEmpty()) {
             return responseBuilder.build("Nenhuma receita encontrada para o paciente.", HttpStatus.NOT_FOUND);
         }
-    
+
         return responseBuilder.build(revenues, HttpStatus.OK);
     }
 
@@ -74,71 +78,56 @@ public class RevenueService {
         if (doctorOpt.isEmpty()) {
             return responseBuilder.build("Médico não encontrado.", HttpStatus.NOT_FOUND);
         }
-    
+
         List<Revenue> revenues = revenueRepository.findByDoctor(doctorOpt.get());
         if (revenues.isEmpty()) {
             return responseBuilder.build("Nenhuma receita encontrada para o médico.", HttpStatus.NOT_FOUND);
         }
-    
+
         return responseBuilder.build(revenues, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getByDate(Date date) {
-        List<Revenue> revenues = revenueRepository.findByDate(date);
-        return responseBuilder.build(revenues, HttpStatus.OK);
+    public ResponseEntity<?> getRevenueByDate(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return ResponseEntity.badRequest().body("Data inválida ou não informada.");
+        }
+        List<Revenue> revenues = revenueRepository.findByDateTime(dateTime);
+
+        if (revenues.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhuma Receita encontrada para a data informada.");
+        }
+
+        return ResponseEntity.ok(revenues);
     }
 
-    public ResponseEntity<?> edit(Revenue revenue) {
-        if (revenue.getId() == null) {
-            return responseBuilder.build("O ID da receita é obrigatório para edição.", HttpStatus.BAD_REQUEST);
+    public ResponseEntity<?> updateRevenue(Long id, Revenue updatedRevenue) {
+        
+        Optional<Revenue> optionalRevenue = revenueRepository.findById(id);
+        if (!optionalRevenue.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Receita não encontrada.");
         }
-    
-        Optional<Revenue> existingRevenueOpt = revenueRepository.findById(revenue.getId());
-        if (existingRevenueOpt.isEmpty()) {
-            return responseBuilder.build("Receita não encontrada para edição.", HttpStatus.NOT_FOUND);
-        }
-    
-        Revenue existingRevenue = existingRevenueOpt.get();
-    
-        // Atualiza apenas os campos alteráveis
-        if (revenue.getMedications() != null) {
-            existingRevenue.setMedications(revenue.getMedications());
-        }
-        if (revenue.getDosage() != null) {
-            existingRevenue.setDosage(revenue.getDosage());
-        }
-        if (revenue.getRecommendations() != null) {
-            existingRevenue.setRecommendations(revenue.getRecommendations());
-        }
-        if (revenue.getDate() != null) {
-            existingRevenue.setDate(revenue.getDate());
-        }
-    
-        // Não altera doctor, patient, medicalRecord se não passados no JSON
-        if (revenue.getDoctor() != null) {
-            existingRevenue.setDoctor(revenue.getDoctor());
+
+        Revenue existingRevenue = optionalRevenue.get();
+       
+        existingRevenue.setMedications(updatedRevenue.getMedications());
+        existingRevenue.setDosage(updatedRevenue.getDosage());
+        existingRevenue.setRecommendations(updatedRevenue.getRecommendations());
+        existingRevenue.setDateTime(updatedRevenue.getDateTime());
+
+        revenueRepository.save(existingRevenue);
+
+        return ResponseEntity.ok(existingRevenue);
+    }
+
+    public MedicalRecord addRevenue(Long medicalRecordId, Revenue revenue) {
+        Optional<MedicalRecord> optionalMedicalRecord = medicalRecordRepository.findById(medicalRecordId);
+        if (optionalMedicalRecord.isPresent()) {
+            MedicalRecord medicalRecord = optionalMedicalRecord.get();
+            revenue.setMedicalRecord(medicalRecord);
+            medicalRecord.getRevenues().add(revenue);
+            return medicalRecordRepository.save(medicalRecord);
         } else {
-            // Caso não passe doctor no JSON, preserva o valor existente
-            existingRevenue.setDoctor(existingRevenue.getDoctor());
+            throw new IllegalArgumentException("Prontuário não encontrado");
         }
-    
-        if (revenue.getPatient() != null) {
-            existingRevenue.setPatient(revenue.getPatient());
-        } else {
-            // Caso não passe patient no JSON, preserva o valor existente
-            existingRevenue.setPatient(existingRevenue.getPatient());
-        }
-    
-        if (revenue.getMedicalRecord() != null) {
-            existingRevenue.setMedicalRecord(revenue.getMedicalRecord());
-        } else {
-            // Caso não passe medicalRecord no JSON, preserva o valor existente
-            existingRevenue.setMedicalRecord(existingRevenue.getMedicalRecord());
-        }
-    
-        // Atualiza a receita no banco
-        Revenue updatedRevenue = revenueRepository.save(existingRevenue);
-    
-        return responseBuilder.build(updatedRevenue, HttpStatus.OK);
     }
 }

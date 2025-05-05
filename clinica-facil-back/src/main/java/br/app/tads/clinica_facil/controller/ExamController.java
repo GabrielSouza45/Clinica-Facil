@@ -1,6 +1,6 @@
 package br.app.tads.clinica_facil.controller;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import br.app.tads.clinica_facil.model.Exam;
+import br.app.tads.clinica_facil.model.MedicalRecord;
 import br.app.tads.clinica_facil.service.ExamService;
 
 @RestController
@@ -24,12 +25,7 @@ public class ExamController {
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllExams() {
-        List<Exam> exams = (List<Exam>) examService.getAllExams(); 
-        if (exams.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Nenhum exame encontrado.");
-        }
-        return ResponseEntity.ok(exams); 
+        return examService.getAllExams();
     }
 
     @GetMapping("/by-patient/{patientId}")
@@ -41,13 +37,31 @@ public class ExamController {
     @GetMapping("/by-date")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
     public ResponseEntity<?> getExamsByDate(
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return examService.getExamsByDate(date);
+            @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime dateTime) {
+        return examService.getExamsByDate(dateTime);
     }
 
-    @PutMapping("/edit")
+    @PutMapping("/edit/{examId}")
     @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<?> editExam(@RequestBody Exam exam) {
-        return examService.editExam(exam);
+    public ResponseEntity<Exam> updateExam(@PathVariable Long examId, @RequestBody Exam updatedExam) {
+        try {
+            Exam exam = examService.updateExam(examId, updatedExam);
+            return ResponseEntity.ok(exam);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
+
+    @PostMapping("/{medicalRecordId}/add")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<MedicalRecord> addExamToMedicalRecord(
+            @PathVariable Long medicalRecordId, @RequestBody Exam exam) {
+        try {
+            MedicalRecord updatedMedicalRecord = examService.addExam(medicalRecordId, exam);
+            return ResponseEntity.ok(updatedMedicalRecord);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 }

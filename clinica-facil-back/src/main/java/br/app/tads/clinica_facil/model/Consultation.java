@@ -1,5 +1,6 @@
 package br.app.tads.clinica_facil.model;
 
+import br.app.tads.clinica_facil.model.enums.StatusConsultation;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 
@@ -18,7 +19,7 @@ public class Consultation {
     private Long id;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
-    @Column(name = "birth")
+    @Column(name = "dateTime")
     private LocalDateTime dateTime;
 
     private Long patientId;
@@ -37,8 +38,12 @@ public class Consultation {
     @JsonBackReference(value = "medicalRecord-consultation")
     private MedicalRecord medicalRecord;
 
-    public Consultation(Long id, LocalDateTime dateTime, Long patientId, Long doctorId, String specialty, Report report,
-            MedicalRecord medicalRecord) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private StatusConsultation status;
+
+    public Consultation(Long id, LocalDateTime dateTime, Long patientId, Long doctorId, String specialty, 
+                        Report report, MedicalRecord medicalRecord, StatusConsultation status) {
         this.id = id;
         this.dateTime = dateTime;
         this.patientId = patientId;
@@ -46,6 +51,7 @@ public class Consultation {
         this.specialty = specialty;
         this.report = report;
         this.medicalRecord = medicalRecord;
+        this.status = status;
     }
 
     public Consultation() {
@@ -59,20 +65,20 @@ public class Consultation {
         this.id = id;
     }
 
-    public void setPatientId(long patientId) {
-        this.patientId = patientId;
-    }
-
     public Long getPatientId() {
         return patientId;
     }
 
-    public void setDoctorId(long doctorId) {
-        this.doctorId = doctorId;
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
     }
 
     public Long getDoctorId() {
         return doctorId;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
     }
 
     public LocalDateTime getDateTime() {
@@ -107,4 +113,11 @@ public class Consultation {
         this.medicalRecord = medicalRecord;
     }
 
+    public StatusConsultation getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusConsultation status) {
+        this.status = status;
+    }
 }

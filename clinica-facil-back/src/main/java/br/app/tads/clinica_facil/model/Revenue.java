@@ -3,9 +3,10 @@ package br.app.tads.clinica_facil.model;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "revenue")
@@ -20,8 +21,9 @@ public class Revenue {
     private String dosage;      // Posologia (Ex: Tomar 1 comprimido a cada 8h)
     private String recommendations; // Outras recomendações (Ex: repouso, alimentação)
 
-    @Temporal(TemporalType.DATE)
-    private Date date; // Data da receita
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "dateTime")
+    private LocalDateTime dateTime;
 
     @ManyToOne
     @JoinColumn(name = "doctor_id")
@@ -36,13 +38,13 @@ public class Revenue {
     @JsonBackReference(value = "medicalRecord-revenue")
     private MedicalRecord medicalRecord;
 
-    public Revenue(Long id, String medications, String dosage, String recommendations, Date date, Doctor doctor,
-            Patient patient, MedicalRecord medicalRecord) {
+    public Revenue(Long id, String medications, String dosage, String recommendations, LocalDateTime dateTime,
+            Doctor doctor, Patient patient, MedicalRecord medicalRecord) {
         this.id = id;
         this.medications = medications;
         this.dosage = dosage;
         this.recommendations = recommendations;
-        this.date = date;
+        this.dateTime = dateTime;
         this.doctor = doctor;
         this.patient = patient;
         this.medicalRecord = medicalRecord;
@@ -83,12 +85,12 @@ public class Revenue {
         this.recommendations = recommendations;
     }
 
-    public Date getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public Doctor getDoctor() {

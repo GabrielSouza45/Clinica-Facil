@@ -3,8 +3,11 @@ package br.app.tads.clinica_facil.service;
 import br.app.tads.clinica_facil.infra.responseBuilder.ResponseBuilder;
 import br.app.tads.clinica_facil.model.Consultation;
 import br.app.tads.clinica_facil.model.MedicalRecord;
+import br.app.tads.clinica_facil.model.Report;
+import br.app.tads.clinica_facil.model.enums.StatusConsultation;
 import br.app.tads.clinica_facil.repository.ConsultationRepository;
 import br.app.tads.clinica_facil.repository.MedicalRecordRepository;
+import br.app.tads.clinica_facil.repository.ReportRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,11 +31,16 @@ public class ConsultationService {
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
 
+    @Autowired
+    private ReportRepository reportRepository;
+
+    //Método para buscar Todas as Consultas
     public ResponseEntity<?> getAllConsultations() {
         List<Consultation> list = consultationRepository.findAll();
         return ResponseEntity.ok(list);
     }
 
+    //Método para buscar as Consultas pelo Paciente
     public ResponseEntity<?> getConsultationsByPatient(Long patientId) {
         List<Consultation> list = consultationRepository.findByPatientId(patientId);
 
@@ -44,6 +52,7 @@ public class ConsultationService {
         return ResponseEntity.ok(list);
     }
 
+    //Método para buscar as Consultas pelo Médico
     public ResponseEntity<?> getConsultationsByDoctor(Long doctorId) {
         List<Consultation> list = consultationRepository.findByDoctorId(doctorId);
 
@@ -55,17 +64,21 @@ public class ConsultationService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<?> getConsultationsByDateRange(Date start, Date end) {
-        List<Consultation> list = consultationRepository.findByDateTimeBetween(start, end);
+    //Método para buscar as Consultas pela Data
+    public ResponseEntity<?> getConsultByDate(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return ResponseEntity.badRequest().body("Data inválida ou não informada.");
+        }
+        List<Consultation> consultations = consultationRepository.findByDateTime(dateTime);
 
-        if (list.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Nenhuma consulta encontrada no intervalo de datas informado.");
+        if (consultations.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum exame encontrado para a data informada.");
         }
 
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(consultations);
     }
 
+    //Método para buscar as Cosultas por Especialidade
     public ResponseEntity<?> getConsultationsBySpecialty(String specialty) {
         List<Consultation> list = consultationRepository.findBySpecialtyContainingIgnoreCase(specialty);
 
@@ -77,69 +90,136 @@ public class ConsultationService {
         return ResponseEntity.ok(list);
     }
 
-    public ResponseEntity<?> updateConsultation(Consultation consultation) {
-        if (consultation == null || consultation.getId() == null) {
-            return responseBuilder.build("Consulta inválida para atualização.", HttpStatus.BAD_REQUEST);
+    //Método para cancelar a Consulta é necessário informar o motivo do cancelamento
+    public ResponseEntity<?> cancelConsultation(Long consultationId, Report report) {
+        if (report == null || report.getReasons() == null || report.getReasons().trim().isEmpty()) {
+            return responseBuilder.build("Motivo do cancelamento é obrigatório.", HttpStatus.BAD_REQUEST);
+        }
+    
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new EntityNotFoundException("Consulta não encontrada com ID: " + consultationId));
+    
+        if (consultation.getStatus() == StatusConsultation.FINISHED) {
+            return responseBuilder.build("A consulta já foi finalizada e não pode ser cancelada.", HttpStatus.BAD_REQUEST);
+        }
+    
+        if (consultation.getStatus() == StatusConsultation.CANCELLED) {
+            return responseBuilder.build("A consulta já foi cancelada anteriormente.", HttpStatus.BAD_REQUEST);
+        }
+    
+        report.setConsultation(consultation);
+    
+        report.setPatientId(consultation.getPatientId());
+
+        report.setDoctorId(consultation.getDoctorId());
+    
+        reportRepository.save(report);
+    
+        consultation.setReport(report);
+        consultation.setStatus(StatusConsultation.CANCELLED);
+        consultationRepository.save(consultation);
+    
+        return responseBuilder.build("Consulta cancelada com sucesso!", HttpStatus.OK);
+    }
+    
+    //Método para finalizar a Consulta e adicionar um Relatório 
+    public ResponseEntity<?> addReportAndFinalizeConsultation(Long consultationId, Report report) {
+        if (report == null || report.getDiagnosis() == null || report.getDiagnosis().trim().isEmpty()) {
+            return responseBuilder.build("Relatório e diagnóstico são obrigatórios.", HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Consultation> existingOpt = consultationRepository.findById(consultation.getId());
-        if (existingOpt.isEmpty()) {
-            return responseBuilder.build("Consulta não encontrada.", HttpStatus.NOT_FOUND);
+        Consultation consultation = consultationRepository.findById(consultationId)
+                .orElseThrow(() -> new EntityNotFoundException("Consulta não encontrada com ID: " + consultationId));
+
+        if (consultation.getStatus() == StatusConsultation.FINISHED) {
+            return responseBuilder.build("A consulta já foi finalizada.", HttpStatus.BAD_REQUEST);
         }
 
-        if (consultation.getDateTime() == null) {
-            return responseBuilder.build("A data e hora da consulta são obrigatórias.", HttpStatus.BAD_REQUEST);
+        report.setConsultation(consultation);
+    
+        report.setPatientId(consultation.getPatientId());
+
+        report.setDoctorId(consultation.getDoctorId());
+    
+        reportRepository.save(report);
+
+        consultation.setReport(report);
+        consultation.setStatus(StatusConsultation.FINISHED);
+        consultationRepository.save(consultation);
+
+        return responseBuilder.build("Consulta finalizada com sucesso!", HttpStatus.OK);
+    }
+
+    //Método para Atualizar dados da Consulta
+    public ResponseEntity<?> updateConsultation(Long id, Consultation updatedConsultation) {
+        Optional<Consultation> optionalConsultation = consultationRepository.findById(id);
+    
+        if (optionalConsultation.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Consulta não encontrada.");
         }
-        if (consultation.getPatientId() == null || consultation.getPatientId() <= 0) {
-            return responseBuilder.build("ID do paciente inválido.", HttpStatus.BAD_REQUEST);
+    
+        Consultation existingConsultation = optionalConsultation.get();
+    
+        if (existingConsultation.getStatus() == StatusConsultation.CANCELLED
+                || existingConsultation.getStatus() == StatusConsultation.FINISHED) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Consultas canceladas ou finalizadas não podem ser editadas.");
         }
-        if (consultation.getDoctorId() == null || consultation.getDoctorId() <= 0) {
-            return responseBuilder.build("ID do médico inválido.", HttpStatus.BAD_REQUEST);
+    
+        if (updatedConsultation.getDateTime() == null
+                || updatedConsultation.getDateTime().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("A data da consulta deve ser futura.");
         }
-        if (consultation.getSpecialty() == null || consultation.getSpecialty().trim().isEmpty()) {
-            return responseBuilder.build("Especialidade da consulta é obrigatória.", HttpStatus.BAD_REQUEST);
+    
+        if (updatedConsultation.getSpecialty() == null || updatedConsultation.getSpecialty().isBlank()) {
+            return ResponseEntity.badRequest().body("A especialidade não pode ser vazia.");
         }
-        if (consultation.getMedicalRecord() == null || consultation.getMedicalRecord().getId() == null) {
-            return responseBuilder.build(
-                    "É preciso informar o ID do Prontuário para arquivamento da Consulta e associação com o devido Paciente.",
+    
+        if (updatedConsultation.getStatus() == null) {
+            return ResponseEntity.badRequest().body("O status da consulta é obrigatório.");
+        }
+    
+        existingConsultation.setDateTime(updatedConsultation.getDateTime());
+        existingConsultation.setSpecialty(updatedConsultation.getSpecialty());
+        existingConsultation.setStatus(updatedConsultation.getStatus());
+    
+        Consultation savedConsultation = consultationRepository.save(existingConsultation);
+    
+        return ResponseEntity.ok(savedConsultation);
+    }
+    
+
+    //Método para Agendamento de Consultas
+    public ResponseEntity<?> createConsultation(Consultation consultation, Long medicalRecordId) {
+        if (consultation.getDateTime().isBefore(LocalDateTime.now())) {
+            return responseBuilder.build("A consulta deve ser agendada para uma data no futuro.",
                     HttpStatus.BAD_REQUEST);
         }
 
-        // Verificando se o MedicalRecord existe no banco de dados
-        Optional<MedicalRecord> medicalRecordOpt = medicalRecordRepository
-                .findById(consultation.getMedicalRecord().getId());
-        if (medicalRecordOpt.isEmpty()) {
+        if (consultation.getSpecialty() == null || consultation.getSpecialty().isEmpty()) {
+            return responseBuilder.build("A especialidade deve ser informada.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (consultation.getPatientId() == null || consultation.getDoctorId() == null) {
+            return responseBuilder.build("Paciente e médico devem ser informados.", HttpStatus.BAD_REQUEST);
+        }
+
+        if (medicalRecordId == null) {
+            return responseBuilder.build("O ID do prontuário deve ser informado.", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<MedicalRecord> medicalRecordOpt = medicalRecordRepository.findById(medicalRecordId);
+        if (!medicalRecordOpt.isPresent()) {
             return responseBuilder.build("Prontuário não encontrado.", HttpStatus.NOT_FOUND);
         }
 
-        // Associando o MedicalRecord corretamente
-        Consultation existing = existingOpt.get();
-        existing.setDateTime(consultation.getDateTime());
-        existing.setPatientId(consultation.getPatientId());
-        existing.setDoctorId(consultation.getDoctorId());
-        existing.setSpecialty(consultation.getSpecialty());
-        existing.setReport(consultation.getReport());
+        consultation.setMedicalRecord(medicalRecordOpt.get());
 
-        // Não sobrescrever o MedicalRecord se não foi alterado
-        if (consultation.getMedicalRecord() != null) {
-            existing.setMedicalRecord(medicalRecordOpt.get());
-        }
+        consultation.setStatus(StatusConsultation.PENDING);
 
-        Consultation updated = consultationRepository.save(existing);
-
-        return ResponseEntity.ok(updated);
-    }
-
-    public MedicalRecord addConsultation(Long medicalRecordId, Consultation consultation) {
-        MedicalRecord medicalRecord = medicalRecordRepository.findById(medicalRecordId)
-            .orElseThrow(() -> new EntityNotFoundException("Prontuário não encontrado para o ID: " + medicalRecordId));
-    
-        consultation.setMedicalRecord(medicalRecord);
-        medicalRecord.getConsultations().add(consultation);
-    
         consultationRepository.save(consultation);
-    
-        return medicalRecord;
+
+        return responseBuilder.build("Consulta criada com sucesso.", HttpStatus.CREATED);
     }
 
 }

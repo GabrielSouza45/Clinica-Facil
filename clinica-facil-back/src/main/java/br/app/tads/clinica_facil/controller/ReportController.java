@@ -9,14 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import br.app.tads.clinica_facil.infra.responseBuilder.ResponseBuilder;
-import br.app.tads.clinica_facil.model.Patient;
 import br.app.tads.clinica_facil.model.Report;
 import br.app.tads.clinica_facil.service.PatientService;
 import br.app.tads.clinica_facil.service.ReportService;
@@ -61,25 +60,11 @@ public class ReportController {
         return reportService.getReportByDate(issueDate);
     }
 
-    @PostMapping("/create")
+    @PutMapping("/edit/{id}")
     @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<?> setReport(@RequestBody Report report) {
-        if (report == null) {
-            return responseBuilder.build("O relatório não pode ser nulo.", HttpStatus.BAD_REQUEST);
-        }
-
-        return reportService.add(report);
-    }
-
-    @PutMapping("/edit")
-    @PreAuthorize("hasRole('DOCTOR')")
-    public ResponseEntity<?> editReport(@RequestBody Report report) {
-        if (report == null || report.getId() == null) {
-            return responseBuilder.build("É obrigatório informar o relatório com ID para edição.",
-                    HttpStatus.BAD_REQUEST);
-        }
-
-        return reportService.edit(report);
+    public ResponseEntity<Report> updateReport(@PathVariable Long id, @RequestBody Report updatedReport) {
+        Report report = reportService.updateReport(id, updatedReport);
+        return ResponseEntity.ok(report);
     }
 
 }

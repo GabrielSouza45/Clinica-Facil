@@ -68,46 +68,32 @@ public class ReportService {
         return ResponseEntity.ok(saved);
     }
 
-    public ResponseEntity<?> edit(Report report) {
-        if (report.getId() == null) {
-            return responseBuilder.build("ID do relatório não informado.", HttpStatus.BAD_REQUEST);
-        }
+    public Report updateReport(Long reportId, Report updatedReport) {
+        Report existingReport = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Relatório não encontrado com ID: " + reportId));
 
-        Optional<Report> existingReportOptional = reportRepository.findById(report.getId());
+        existingReport.setIssueDate(updatedReport.getIssueDate());
+        existingReport.setReasons(updatedReport.getReasons());
+        existingReport.setClinicalHistory(updatedReport.getClinicalHistory());
+        existingReport.setDiagnosis(updatedReport.getDiagnosis());
 
-        if (existingReportOptional.isEmpty()) {
-            return responseBuilder.build("Relatório não encontrado.", HttpStatus.NOT_FOUND);
-        }
-
-        Report existingReport = existingReportOptional.get();
-        existingReport.setPatient(report.getPatient());
-        existingReport.setDoctor(report.getDoctor());
-        existingReport.setIssueDate(report.getIssueDate());
-        existingReport.setReasons(report.getReasons());
-        existingReport.setClinicalHistory(report.getClinicalHistory());
-        existingReport.setDiagnosis(report.getDiagnosis());
-
-        reportRepository.save(existingReport);
-
-        return responseBuilder.build("Relatório atualizado com sucesso.", HttpStatus.OK);
-
+        return reportRepository.save(existingReport);
     }
 
     private ResponseEntity<?> validateDoctorAndPatient(Report report) {
-        if (report.getPatient() == null || report.getPatient().getId() == null ||
-                report.getDoctor() == null || report.getDoctor().getId() == null) {
+        if (report.getPatientId() == null || report.getDoctorId() == null) {
             return responseBuilder.build("Paciente ou Médico não informado corretamente.", HttpStatus.BAD_REQUEST);
         }
 
-        Optional<Patient> optionalPatient = patientRepository.findById(report.getPatient().getId());
-        Optional<Doctor> optionalDoctor = doctorRepository.findById(report.getDoctor().getId());
+        Optional<Patient> optionalPatient = patientRepository.findById(report.getPatientId());
+        Optional<Doctor> optionalDoctor = doctorRepository.findById(report.getDoctorId());
 
         if (optionalPatient.isEmpty() || optionalDoctor.isEmpty()) {
             return responseBuilder.build("Paciente ou Médico não encontrado.", HttpStatus.BAD_REQUEST);
         }
 
-        report.setPatient(optionalPatient.get());
-        report.setDoctor(optionalDoctor.get());
+        report.setPatientId(optionalPatient.get().getId());
+        report.setDoctorId(optionalDoctor.get().getId());
         return null;
     }
 }

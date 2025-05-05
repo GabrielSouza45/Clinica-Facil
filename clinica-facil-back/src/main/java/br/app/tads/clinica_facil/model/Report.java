@@ -6,12 +6,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.EqualsAndHashCode;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -24,13 +23,11 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
+    @Column(name = "patient_id")
+    private Long patientId;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
-    private Doctor doctor;
+    @Column(name = "doctor_id")
+    private Long doctorId;
 
     private Date issueDate;
     private String reasons;// Razões para a consulta
@@ -41,11 +38,11 @@ public class Report {
     @JsonManagedReference(value = "report-consultation")
     private Consultation consultation;
 
-    public Report(Long id, Patient patient, Doctor doctor, Date issueDate, String reasons, String clinicalHistory,
+    public Report(Long id, Long patientId, Long doctorId, Date issueDate, String reasons, String clinicalHistory,
             String diagnosis, Consultation consultation) {
         this.id = id;
-        this.patient = patient;
-        this.doctor = doctor;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
         this.issueDate = issueDate;
         this.reasons = reasons;
         this.clinicalHistory = clinicalHistory;
@@ -53,6 +50,14 @@ public class Report {
         this.consultation = consultation;
     }
 
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Long doctor) {
+        this.doctorId = doctor;
+    }
+   
     public Report() {
     }
 
@@ -64,21 +69,14 @@ public class Report {
         this.id = id;
     }
 
-    public Patient getPatient() {
-        return patient;
+    public Long getPatientId() {
+        return patientId;
     }
 
-    public void setPatient(Patient patient) {
-        this.patient = patient;
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
     }
 
-    public Doctor getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
-    }
 
     public Date getIssueDate() {
         return issueDate;
@@ -90,6 +88,14 @@ public class Report {
 
     public String getReasons() {
         return reasons;
+    }
+
+    public Consultation getConsultation() {
+        return consultation;
+    }
+
+    public void setConsultation(Consultation consultation) {
+        this.consultation = consultation;
     }
 
     public void setReasons(String reasons) {

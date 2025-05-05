@@ -1,6 +1,6 @@
 package br.app.tads.clinica_facil.repository;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +15,6 @@ public interface RevenueRepository extends JpaRepository<Revenue, Long> {
 
     List<Revenue> findByDoctor(Doctor doctor);
 
-    List<Revenue> findByDate(Date date);
+    List<Revenue> findByDateTime(LocalDateTime dateTime);
 
 }

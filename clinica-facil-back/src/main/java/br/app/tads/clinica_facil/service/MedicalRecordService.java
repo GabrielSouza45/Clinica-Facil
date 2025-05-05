@@ -3,9 +3,6 @@ package br.app.tads.clinica_facil.service;
 import br.app.tads.clinica_facil.model.MedicalRecord;
 import br.app.tads.clinica_facil.model.Patient;
 import br.app.tads.clinica_facil.model.Consultation;
-import br.app.tads.clinica_facil.model.Exam;
-import br.app.tads.clinica_facil.model.Revenue;
-import br.app.tads.clinica_facil.repository.ConsultationRepository;
 import br.app.tads.clinica_facil.repository.MedicalRecordRepository;
 import jakarta.persistence.EntityNotFoundException;
 
@@ -43,31 +40,6 @@ public class MedicalRecordService {
             medicalRecordRepository.save(medicalRecord);
     
         return medicalRecordRepository.save(medicalRecord);
-    }
-
-    public MedicalRecord addExamToMedicalRecord(Long medicalRecordId, Exam exam) {
-        Optional<MedicalRecord> optionalMedicalRecord = medicalRecordRepository.findById(medicalRecordId);
-        if (optionalMedicalRecord.isPresent()) {
-            MedicalRecord medicalRecord = optionalMedicalRecord.get();
-            exam.setMedicalRecord(medicalRecord);  
-            medicalRecord.getExams().add(exam);  
-            return medicalRecordRepository.save(medicalRecord);
-        } else {
-            throw new IllegalArgumentException("Prontuário não encontrado");
-        }
-    }
-
-
-    public MedicalRecord addRevenueToMedicalRecord(Long medicalRecordId, Revenue revenue) {
-        Optional<MedicalRecord> optionalMedicalRecord = medicalRecordRepository.findById(medicalRecordId);
-        if (optionalMedicalRecord.isPresent()) {
-            MedicalRecord medicalRecord = optionalMedicalRecord.get();
-            revenue.setMedicalRecord(medicalRecord);  
-            medicalRecord.getRevenues().add(revenue);  
-            return medicalRecordRepository.save(medicalRecord);
-        } else {
-            throw new IllegalArgumentException("Prontuário não encontrado");
-        }
     }
 
   

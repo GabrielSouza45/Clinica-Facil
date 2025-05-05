@@ -2,12 +2,9 @@ package br.app.tads.clinica_facil.controller;
 
 import br.app.tads.clinica_facil.model.MedicalRecord;
 import br.app.tads.clinica_facil.model.Patient;
-import br.app.tads.clinica_facil.model.Consultation;
-import br.app.tads.clinica_facil.model.Exam;
-import br.app.tads.clinica_facil.model.Revenue;
 import br.app.tads.clinica_facil.service.MedicalRecordService;
 import br.app.tads.clinica_facil.service.PatientService;
-import jakarta.persistence.EntityNotFoundException;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -53,44 +50,6 @@ public class MedicalRecordController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping("/{medicalRecordId}/consultations")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> addConsultationToMedicalRecord(
-            @PathVariable Long medicalRecordId, @RequestBody Consultation consultation) {
-                System.out.println("BATEUUUUU");
-        try {
-            MedicalRecord updatedMedicalRecord = medicalRecordService.addConsultationToMedicalRecord(medicalRecordId, consultation);
-            return ResponseEntity.ok(updatedMedicalRecord);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }     
-    }
-
-    @PostMapping("/{medicalRecordId}/exams")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> addExamToMedicalRecord(
-            @PathVariable Long medicalRecordId, @RequestBody Exam exam) {
-        try {
-            MedicalRecord updatedMedicalRecord = medicalRecordService.addExamToMedicalRecord(medicalRecordId, exam);
-            return ResponseEntity.ok(updatedMedicalRecord);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @PostMapping("/{medicalRecordId}/revenues")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> addRevenueToMedicalRecord(
-            @PathVariable Long medicalRecordId, @RequestBody Revenue revenue) {
-        try {
-            MedicalRecord updatedMedicalRecord = medicalRecordService.addRevenueToMedicalRecord(medicalRecordId, revenue);
-            return ResponseEntity.ok(updatedMedicalRecord);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

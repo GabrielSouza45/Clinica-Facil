@@ -2,9 +2,10 @@ package br.app.tads.clinica_facil.model;
 import lombok.EqualsAndHashCode;
 import jakarta.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 @Entity
@@ -17,8 +18,12 @@ public class Exam {
     private Long id;
 
     private String name; 
-    private String description; 
-    private Date date; 
+    private String description;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "dateTime")
+    private LocalDateTime dateTime;
+
     private String results; 
 
     @ManyToOne
@@ -30,12 +35,12 @@ public class Exam {
     @JsonBackReference(value = "medicalRecord-exam")
     private MedicalRecord medicalRecord;
 
-    public Exam(Long id, String name, String description, Date date, String results, Patient patient,
+    public Exam(Long id, String name, String description, LocalDateTime dateTime, String results, Patient patient,
             MedicalRecord medicalRecord) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.date = date;
+        this.dateTime = dateTime;
         this.results = results;
         this.patient = patient;
         this.medicalRecord = medicalRecord;
@@ -68,14 +73,14 @@ public class Exam {
         this.description = description;
     }
 
-    public Date getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
-
+    
     public String getResults() {
         return results;
     }
@@ -99,6 +104,5 @@ public class Exam {
     public void setMedicalRecord(MedicalRecord medicalRecord) {
         this.medicalRecord = medicalRecord;
     }
-
     
 }
