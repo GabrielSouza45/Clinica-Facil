@@ -2,14 +2,10 @@ package br.app.tads.clinica_facil.model;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
-
 import java.util.ArrayList;
 import java.util.List;
 
-//<---------------PRONTUARIO--------------->//
-//<---------------PRONTUARIO--------------->//
-//<---------------PRONTUARIO--------------->//
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity(name = "medical_record")
 @Table(name = "medical_record")
@@ -25,12 +21,15 @@ public class MedicalRecord {
     private Patient patient;
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Consultation> consultations = new ArrayList<>(); 
+    @JsonManagedReference(value = "medicalRecord-consultation")
+    private List<Consultation> consultations = new ArrayList<>();
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "medicalRecord-exam")
     private List<Exam> exams = new ArrayList<>(); 
 
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "medicalRecord-revenue")
     private List<Revenue> revenues = new ArrayList<>(); 
 
     public MedicalRecord() {}
@@ -41,15 +40,6 @@ public class MedicalRecord {
         this.exams = new ArrayList<>();
         this.revenues = new ArrayList<>();
     }
-
-    public MedicalRecord(Long id, Patient patient, List<Consultation> consultations, List<Exam> exams, List<Revenue> revenues) {
-        this.id = id;
-        this.patient = patient;
-        this.consultations = (consultations != null) ? consultations : new ArrayList<>();
-        this.exams = (exams != null) ? exams : new ArrayList<>();
-        this.revenues = (revenues != null) ? revenues : new ArrayList<>();
-    }
-
 
     public Long getId() {
         return id;
@@ -68,6 +58,9 @@ public class MedicalRecord {
     }
 
     public List<Consultation> getConsultations() {
+        if (consultations == null) {
+            consultations = new ArrayList<>();
+        }
         return consultations;
     }
 

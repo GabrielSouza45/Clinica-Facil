@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { Observable } from 'rxjs';
+import { Filtros } from '../../model/Filtros';
 
 @Injectable({
   providedIn: 'root'
@@ -11,19 +13,25 @@ export class CrudService<T> {
 
   constructor(
     @Inject(String) private path: string,
-    private httpCliente: HttpClient,
+    private httpClient: HttpClient,
     private toastrService: ToastrService
   ) {
     this.url = this.domain + path;
   }
 
-  login() {}
+  doGet(acao: string): Observable<any> {
+    return this.httpClient.get<any>(this.url + acao);
+  }
 
-  doGet() { }
+  doPost(acao: string, dados?: any): Observable<any> {
+    return this.httpClient.post<any>(this.url + acao, dados);
+  }
 
-  doPost() { }
+  doPut(acao: string, dados?: any): Observable<any> {
+    return this.httpClient.put<any>(this.url + acao, dados);
+  }
 
-  doPut() { }
-
-  doDelete() { }
+  doDelete(acao: string) {
+    return this.httpClient.delete<any>(this.url + acao);
+  }
 }

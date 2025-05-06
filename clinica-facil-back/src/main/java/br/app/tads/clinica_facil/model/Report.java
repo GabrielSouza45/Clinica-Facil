@@ -1,21 +1,18 @@
 package br.app.tads.clinica_facil.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.EqualsAndHashCode;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-
 
 @Entity(name = "report")
 @Table(name = "report")
@@ -26,42 +23,41 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
+    @Column(name = "patient_id")
+    private Long patientId;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
-    private Doctor doctor;
+    @Column(name = "doctor_id")
+    private Long doctorId;
 
     private Date issueDate;
-    private String reasons;//Razões para a consulta
-    private String clinicalHistory;//Antecedentes pessoais relevantes(doenças, cirugias, alergias, etc.)
+    private String reasons;// Razões para a consulta
+    private String clinicalHistory;// Antecedentes pessoais relevantes(doenças, cirugias, alergias, etc.)
     private String diagnosis;
-    
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Revenue> revenues = new ArrayList<>();//Medicamentos prescritos, procedimentos realizados ou recomendados, afastamento (se necessário), com CID e período, ancaminhamentos (ex: para especialistas)
-
-    @OneToMany(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Exam> exams = new ArrayList<>();
 
     @OneToOne(mappedBy = "report", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "report-consultation")
     private Consultation consultation;
-    
-    public Report(Long id, Patient patient, Doctor doctor, Date issueDate, String reasons, String clinicalHistory,
-        String diagnosis, Consultation consultation, List<Revenue> revenues, List<Exam> exams) {
+
+    public Report(Long id, Long patientId, Long doctorId, Date issueDate, String reasons, String clinicalHistory,
+            String diagnosis, Consultation consultation) {
         this.id = id;
-        this.patient = patient;
-        this.doctor = doctor;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
         this.issueDate = issueDate;
         this.reasons = reasons;
         this.clinicalHistory = clinicalHistory;
         this.diagnosis = diagnosis;
         this.consultation = consultation;
-        this.revenues = (revenues != null) ? revenues : new ArrayList<>();
-        this.exams = (exams != null) ? exams : new ArrayList<>();
     }
 
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Long doctor) {
+        this.doctorId = doctor;
+    }
+   
     public Report() {
     }
 
@@ -73,21 +69,14 @@ public class Report {
         this.id = id;
     }
 
-    public Patient getPatient() {
-        return patient;
+    public Long getPatientId() {
+        return patientId;
     }
 
-    public void setPatient(Patient patient) {
-        this.patient = patient;
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
     }
 
-    public Doctor getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
-    }
 
     public Date getIssueDate() {
         return issueDate;
@@ -99,6 +88,14 @@ public class Report {
 
     public String getReasons() {
         return reasons;
+    }
+
+    public Consultation getConsultation() {
+        return consultation;
+    }
+
+    public void setConsultation(Consultation consultation) {
+        this.consultation = consultation;
     }
 
     public void setReasons(String reasons) {
@@ -121,22 +118,6 @@ public class Report {
         this.diagnosis = diagnosis;
     }
 
-    public List<Revenue> getRevenues() {
-        return revenues;
-    }
 
-    public void setRevenues(List<Revenue> revenues) {
-        this.revenues = revenues;
-    }
-
-    public List<Exam> getExams() {
-        return exams;
-    }
-
-    public void setExams(List<Exam> exams) {
-        this.exams = exams;
-    }    
-
-    
 
 }

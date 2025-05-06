@@ -1,8 +1,10 @@
 package br.app.tads.clinica_facil.service;
 
 import br.app.tads.clinica_facil.infra.responseBuilder.ResponseBuilder;
+import br.app.tads.clinica_facil.model.MedicalRecord;
 import br.app.tads.clinica_facil.model.Patient;
 import br.app.tads.clinica_facil.model.enums.Status;
+import br.app.tads.clinica_facil.repository.MedicalRecordRepository;
 import br.app.tads.clinica_facil.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,9 @@ public class PatientService {
     private PatientRepository patientRepository;
     @Autowired
     private ResponseBuilder responseBuilder;
+    
+    @Autowired
+    private MedicalRecordRepository medicalRecordRepository;
 
     public ResponseEntity<?> getAllActive (){
         return responseBuilder.build(patientRepository.findAllByStatus(Status.ACTIVE), HttpStatus.OK);
@@ -36,6 +41,9 @@ public class PatientService {
 
         patient.setStatus(Status.ACTIVE);
         Patient saved = patientRepository.save(patient);
+        MedicalRecord medicalRecord = new MedicalRecord(saved);
+        medicalRecordRepository.save(medicalRecord);
+
         return responseBuilder.build(saved, HttpStatus.CREATED);
     }
 

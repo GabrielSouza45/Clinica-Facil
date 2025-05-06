@@ -3,11 +3,11 @@ import { MenuLateralComponent } from "../../components/menu-lateral/menu-lateral
 import { LayoutPrincipalComponent } from "../layout-principal/layout-principal.component";
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-cadastrar-usuarios',
   imports: [MenuLateralComponent, LayoutPrincipalComponent],
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  templateUrl: './cadastrar-usuarios.component.html',
+  styleUrl: './cadastrar-usuarios.component.css'
 })
-export class HomeComponent {
+export class CadastrarUsuariosComponent {
 
 }

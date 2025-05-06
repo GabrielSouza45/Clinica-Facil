@@ -2,11 +2,9 @@ package br.app.tads.clinica_facil.controller;
 
 import br.app.tads.clinica_facil.model.MedicalRecord;
 import br.app.tads.clinica_facil.model.Patient;
-import br.app.tads.clinica_facil.model.Consultation;
-import br.app.tads.clinica_facil.model.Exam;
-import br.app.tads.clinica_facil.model.Revenue;
 import br.app.tads.clinica_facil.service.MedicalRecordService;
 import br.app.tads.clinica_facil.service.PatientService;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/medical-records")
+@RequestMapping("/medical-records")
 public class MedicalRecordController {
 
     @Autowired
@@ -27,23 +25,8 @@ public class MedicalRecordController {
     @Autowired
     private MedicalRecordService medicalRecordService;
 
-    
-
     MedicalRecordController(PatientService patientService) {
         this.patientService = patientService;
-    }
-
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> createMedicalRecord(@RequestBody Long patientId) {
-        Optional<Patient> optionalPatient = patientService.getPatientById(patientId);
-        if (optionalPatient.isPresent()) {
-            Patient patient = optionalPatient.get();
-            MedicalRecord medicalRecord = medicalRecordService.createMedicalRecord(patient);
-            return ResponseEntity.status(HttpStatus.CREATED).body(medicalRecord);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
     }
 
     @GetMapping("/by-patient/{patientId}")
@@ -67,41 +50,6 @@ public class MedicalRecordController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @PostMapping("/{medicalRecordId}/consultations")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> addConsultationToMedicalRecord(
-            @PathVariable Long medicalRecordId, @RequestBody Consultation consultation) {
-        try {
-            MedicalRecord updatedMedicalRecord = medicalRecordService.addConsultationToMedicalRecord(medicalRecordId, consultation);
-            return ResponseEntity.ok(updatedMedicalRecord);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @PostMapping("/{medicalRecordId}/exams")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> addExamToMedicalRecord(
-            @PathVariable Long medicalRecordId, @RequestBody Exam exam) {
-        try {
-            MedicalRecord updatedMedicalRecord = medicalRecordService.addExamToMedicalRecord(medicalRecordId, exam);
-            return ResponseEntity.ok(updatedMedicalRecord);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @PostMapping("/{medicalRecordId}/revenues")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MedicalRecord> addRevenueToMedicalRecord(
-            @PathVariable Long medicalRecordId, @RequestBody Revenue revenue) {
-        try {
-            MedicalRecord updatedMedicalRecord = medicalRecordService.addRevenueToMedicalRecord(medicalRecordId, revenue);
-            return ResponseEntity.ok(updatedMedicalRecord);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

@@ -1,9 +1,13 @@
 package br.app.tads.clinica_facil.model;
 
+import br.app.tads.clinica_facil.model.enums.StatusConsultation;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "consultation")
@@ -14,39 +18,44 @@ public class Consultation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTime; // Data e horário da consulta
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "dateTime")
+    private LocalDateTime dateTime;
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    private Long patientId;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    private Long doctorId;
 
-    private String specialty; // Especialidade da consulta (ex: "Cardiologia")
+    private String specialty;
 
     @OneToOne
     @JoinColumn(name = "report_id")
+    @JsonBackReference(value = "report-consultation")
     private Report report;
 
     @ManyToOne
     @JoinColumn(name = "medical_record_id")
-    private MedicalRecord medicalRecord; 
+    @JsonBackReference(value = "medicalRecord-consultation")
+    private MedicalRecord medicalRecord;
 
-    public Consultation(Long id, Date dateTime, Patient patient, Doctor doctor, String specialty, Report report,
-            MedicalRecord medicalRecord) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private StatusConsultation status;
+
+    public Consultation(Long id, LocalDateTime dateTime, Long patientId, Long doctorId, String specialty, 
+                        Report report, MedicalRecord medicalRecord, StatusConsultation status) {
         this.id = id;
         this.dateTime = dateTime;
-        this.patient = patient;
-        this.doctor = doctor;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
         this.specialty = specialty;
         this.report = report;
         this.medicalRecord = medicalRecord;
+        this.status = status;
     }
 
-    public Consultation() {}
+    public Consultation() {
+    }
 
     public Long getId() {
         return id;
@@ -56,28 +65,28 @@ public class Consultation {
         this.id = id;
     }
 
-    public Date getDateTime() {
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public Long getDoctorId() {
+        return doctorId;
+    }
+
+    public void setDoctorId(Long doctorId) {
+        this.doctorId = doctorId;
+    }
+
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(Date dateTime) {
+    public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
-
-    public Doctor getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
     }
 
     public String getSpecialty() {
@@ -104,5 +113,11 @@ public class Consultation {
         this.medicalRecord = medicalRecord;
     }
 
+    public StatusConsultation getStatus() {
+        return status;
+    }
 
+    public void setStatus(StatusConsultation status) {
+        this.status = status;
+    }
 }

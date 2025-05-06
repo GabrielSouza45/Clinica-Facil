@@ -1,9 +1,12 @@
 package br.app.tads.clinica_facil.model;
 import lombok.EqualsAndHashCode;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 
 @Entity
 @Table(name = "exam")
@@ -14,32 +17,32 @@ public class Exam {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // Nome do exame (Ex: Hemograma, Raio-X)
-    private String description; // Descrição ou observações
-    private Date date; // Data do exame
-    private String results; // Resultados do exame
+    private String name; 
+    private String description;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "dateTime")
+    private LocalDateTime dateTime;
+
+    private String results; 
 
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "report_id", nullable = true)
-    private Report report;
-
-    @ManyToOne
     @JoinColumn(name = "medical_record_id")
+    @JsonBackReference(value = "medicalRecord-exam")
     private MedicalRecord medicalRecord;
 
-    public Exam(Long id, String name, String description, Date date, String results, Patient patient, Report report,
+    public Exam(Long id, String name, String description, LocalDateTime dateTime, String results, Patient patient,
             MedicalRecord medicalRecord) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.date = date;
+        this.dateTime = dateTime;
         this.results = results;
         this.patient = patient;
-        this.report = report;
         this.medicalRecord = medicalRecord;
     }
 
@@ -70,14 +73,14 @@ public class Exam {
         this.description = description;
     }
 
-    public Date getDate() {
-        return date;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
-
+    
     public String getResults() {
         return results;
     }
@@ -94,14 +97,6 @@ public class Exam {
         this.patient = patient;
     }
 
-    public Report getReport() {
-        return report;
-    }
-
-    public void setReport(Report report) {
-        this.report = report;
-    }
-
     public MedicalRecord getMedicalRecord() {
         return medicalRecord;
     }
@@ -109,6 +104,5 @@ public class Exam {
     public void setMedicalRecord(MedicalRecord medicalRecord) {
         this.medicalRecord = medicalRecord;
     }
-
     
 }
