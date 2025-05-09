@@ -66,7 +66,7 @@ public class RevenueController {
         return revenueService.updateRevenue(id, updatedRevenue);
     }
 
-    @PostMapping("/{medicalRecordId}/add")
+    @PostMapping("/add/{medicalRecordId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MedicalRecord> addRevenueToMedicalRecord(
             @PathVariable Long medicalRecordId, @RequestBody Revenue revenue) {

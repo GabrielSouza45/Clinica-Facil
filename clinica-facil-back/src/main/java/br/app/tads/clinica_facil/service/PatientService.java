@@ -51,18 +51,18 @@ public class PatientService {
         return patientRepository.findById(id);
     }
 
-    public ResponseEntity<?> getByName(Patient patient) {
+    public ResponseEntity<?> getByName(String patientName) {
 
-        List<Patient> patients = patientRepository.findByNameContainingAndStatus(patient.getName(), Status.ACTIVE);
+        List<Patient> patients = patientRepository.findByNameContainingAndStatus(patientName, Status.ACTIVE);
 
         return new ResponseEntity<>(patients, HttpStatus.OK);
 
     }
     
 
-    public ResponseEntity<?> getByEmail(Patient patient) {
+    public ResponseEntity<?> getByEmail(String patientEmail) {
 
-        Patient patientSaved = patientRepository.findByEmailAndStatus(patient.getEmail(), Status.ACTIVE);
+        Patient patientSaved = patientRepository.findByEmailAndStatus(patientEmail, Status.ACTIVE);
 
         return new ResponseEntity<>(patientSaved, HttpStatus.OK);
 
@@ -85,9 +85,9 @@ public class PatientService {
 
     }
 
-    public ResponseEntity<?> delete(Patient patient) {
+    public ResponseEntity<?> delete(String email) {
 
-        Patient patientSaved = patientRepository.findByEmailAndStatus(patient.getEmail(), Status.ACTIVE);
+        Patient patientSaved = patientRepository.findByEmailAndStatus(email, Status.ACTIVE);
         if (patientSaved == null)
             return responseBuilder.build("Usuário não localizado!", HttpStatus.NOT_FOUND);
 

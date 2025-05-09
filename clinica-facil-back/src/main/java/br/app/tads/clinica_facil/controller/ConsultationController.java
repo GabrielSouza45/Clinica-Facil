@@ -59,26 +59,26 @@ public class ConsultationController {
         return consultationService.getConsultByDate(dateTime);
     }
 
-    @PostMapping("/{consultationId}/cancel")
+    @PutMapping("/cancel/{consultationId}")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN') or hasRole('PATIENT')")
     public ResponseEntity<?> cancelConsultation(@PathVariable Long consultationId, @RequestBody Report report) {
         return consultationService.cancelConsultation(consultationId, report);
     }
 
-    @PostMapping("/{consultationId}/finalize")
+    @PutMapping("/finalize/{consultationId}")
     @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<?> addReportAndFinalizeConsultation(@PathVariable Long consultationId,
             @RequestBody Report report) {
         return consultationService.addReportAndFinalizeConsultation(consultationId, report);
     }
 
-    @PutMapping("/{id}/edit")
+    @PutMapping("/edit/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     public ResponseEntity<?> editConsultation(@PathVariable Long id, @RequestBody Consultation updatedConsultation) {
         return consultationService.updateConsultation(id, updatedConsultation);
     }
 
-    @PostMapping("/{medicalRecordId}/add")
+    @PostMapping("/add/{medicalRecordId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createConsultation(@PathVariable Long medicalRecordId,
             @RequestBody Consultation consultation) {

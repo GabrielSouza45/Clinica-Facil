@@ -38,17 +38,17 @@ public class DoctorService {
         return responseBuilder.build(saved, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> getByName(Doctor doctor) {
+    public ResponseEntity<?> getByName(String doctorName) {
 
-        List<Doctor> doctors = doctorRepository.findByNameContainingAndStatus(doctor.getName(), Status.ACTIVE);
+        List<Doctor> doctors = doctorRepository.findByNameContaining(doctorName);
 
         return new ResponseEntity<>(doctors, HttpStatus.OK);
 
     }
 
-    public ResponseEntity<?> getByEmail(Doctor doctor) {
+    public ResponseEntity<?> getByEmail(String doctorEmail) {
 
-        Doctor doctorSaved = doctorRepository.findByEmailAndStatus(doctor.getEmail(), Status.ACTIVE);
+        Doctor doctorSaved = doctorRepository.findByEmail(doctorEmail);
 
         return new ResponseEntity<>(doctorSaved, HttpStatus.OK);
 

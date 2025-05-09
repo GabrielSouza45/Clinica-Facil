@@ -52,7 +52,7 @@ public class ExamController {
         }
     }
 
-    @PostMapping("/{medicalRecordId}/add")
+    @PostMapping("/add/{medicalRecordId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MedicalRecord> addExamToMedicalRecord(
             @PathVariable Long medicalRecordId, @RequestBody Exam exam) {
