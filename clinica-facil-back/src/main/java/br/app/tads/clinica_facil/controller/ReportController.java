@@ -38,9 +38,9 @@ public class ReportController {
         return reportService.getAll();
     }
 
-    @GetMapping("/by-patient")
+    @GetMapping("/by-patient/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
-    public ResponseEntity<?> getReportByPatient(@RequestParam Long patientId) {
+    public ResponseEntity<?> getReportByPatient(@PathVariable Long patientId) {
         if (patientId == null) {
             return responseBuilder.build("É obrigatório informar um paciente para realizar uma busca!",
                     HttpStatus.BAD_REQUEST);

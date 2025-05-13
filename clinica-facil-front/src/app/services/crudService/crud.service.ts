@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
@@ -19,8 +19,8 @@ export class CrudService<T> {
     this.url = this.domain + path;
   }
 
-  doGet(acao: string): Observable<any> {
-    return this.httpClient.get<any>(this.url + acao);
+  doGet(acao: string, params?: HttpParams): Observable<any> {
+    return this.httpClient.get<any>(this.url + acao, {params});
   }
 
   doPost(acao: string, dados?: any): Observable<any> {

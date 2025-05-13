@@ -1,11 +1,12 @@
 import { Consultation } from "./Consultation";
+import { Exam } from "./Exam";
 import { Patient } from "./Patient";
+import { Revenue } from "./Revenue";
 
-export class Prontuario{
+export class MedicalRecord{
   id?: number;
   patient?: Patient;
   consultations?: Consultation[];
-  // exam?: Exam[];
-  // revenue?: Revenue[];
-
+  exams?: Exam[];
+  revenues?: Revenue[];
 }

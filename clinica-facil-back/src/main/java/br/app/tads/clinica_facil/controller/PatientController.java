@@ -32,23 +32,23 @@ public class PatientController {
         return patientService.getAll();
     }
 
-    @GetMapping("/get-name")
+    @GetMapping("/get-name/{patientName}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
-    public ResponseEntity<?> getPatientsByName(@RequestBody Patient patient) {
-        if (patient.getName().isBlank())
+    public ResponseEntity<?> getPatientsByName(@PathVariable String patientName) {
+        if (patientName.isBlank())
             return responseBuilder.build("Nome não pode ser nulo!", HttpStatus.BAD_REQUEST);
 
-        return patientService.getByName(patient);
+        return patientService.getByName(patientName);
 
     }
 
-    @GetMapping("/get-email")
+    @GetMapping("/get-email/{patientEmail}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
-    public ResponseEntity<?> getPatientsByEmail(@RequestBody Patient patient) {
-        if (patient.getEmail().isBlank())
+    public ResponseEntity<?> getPatientsByEmail(@PathVariable String patientEmail) {
+        if (patientEmail.isBlank())
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
 
-        return patientService.getByEmail(patient);
+        return patientService.getByEmail(patientEmail);
 
     }
 
@@ -84,14 +84,14 @@ public class PatientController {
         return patientService.edit(patient);
     }
 
-    @PutMapping("/delete")
+    @PutMapping("/delete/{email}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deletePatients(@RequestBody Patient patient) {
-        if (patient.getEmail().isBlank()) {
+    public ResponseEntity<?> deletePatients(@PathVariable String email) {
+        if (email.isEmpty()) {
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
         }
 
-        return patientService.delete(patient);
+        return patientService.delete(email);
     }
     
 }

@@ -32,23 +32,23 @@ public class DoctorController {
         return doctorService.getAll();
     }
 
-    @GetMapping("/get-name")
+    @GetMapping("/get-name/{doctorName}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
-    public ResponseEntity<?> getDoctorsByName(@RequestBody Doctor doctor) {
-        if (doctor.getName().isBlank())
+    public ResponseEntity<?> getDoctorsByName(@PathVariable String doctorName) {
+        if (doctorName.isBlank())
             return responseBuilder.build("Nome não pode ser nulo!", HttpStatus.BAD_REQUEST);
 
-        return doctorService.getByName(doctor);
+        return doctorService.getByName(doctorName);
 
     }
 
-    @GetMapping("/get-email")
+    @GetMapping("/get-email/{doctorEmail}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
-    public ResponseEntity<?> getDoctorsByEmail(@RequestBody Doctor doctor) {
-        if (doctor.getEmail().isBlank())
+    public ResponseEntity<?> getDoctorsByEmail(@PathVariable String doctorEmail) {
+        if (doctorEmail.isBlank())
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
 
-        return doctorService.getByEmail(doctor);
+        return doctorService.getByEmail(doctorEmail);
 
     }
 

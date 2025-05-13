@@ -18,7 +18,7 @@ public class AgendaController {
     @Autowired
     private AgendaService agendaService;
 
-    @GetMapping
+    @GetMapping("/get-all")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     public ResponseEntity<?> getAllAgendas() {
         return agendaService.getAllAgendas();
