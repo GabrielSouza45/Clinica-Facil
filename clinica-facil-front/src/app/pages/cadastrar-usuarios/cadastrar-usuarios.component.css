@@ -1,22 +1,132 @@
-main {
+form {
+  width: 100%;
   display: flex;
-  flex-direction: row;
-  height: 100vh;
-  width: 100vw;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+  padding: 20px 0;
+}
 
+.cabecalho {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+}
 
-  .menu-lateral{
-    height: 100%;
-    width: 20vw;
-    max-width: 400px;
-    min-width: 200px;
-  }
+.cabecalho h2 {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--cor-primaria);
+  margin-bottom: 20px;
+}
 
-  .central{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80vw;
-    height: 100%;
-  }
+.divisor {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+hr {
+  width: 65%;
+  max-width: 750px;
+  border: 0.5px solid var(--cor-primaria);
+}
+
+.filtros {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.inferior {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.form-cadastro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  max-width: 850px;
+  margin-top: 20px;
+}
+
+.input-cadastro {
+  width: 100%;
+  max-width: 400px;
+}
+
+.input-padrao {
+  grid-column: span 2;
+}
+
+/* Estilo do botão de cadastro */
+.botao-cadastrar {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.botao-cadastrar button {
+  background-color: var(--cor-primaria);
+  color: white;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  width: 100%;
+  max-width: 220px;
+}
+
+.botao-cadastrar button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.botao-cadastrar button:hover {
+  background-color: var(--cor-secundaria);
+  transform: scale(1.05);
+}
+
+/* Estilos para o Input de Formulários */
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cor-primaria);
+  outline: none;
+}
+
+input[readonly] {
+  background-color: #f9f9f9;
+}
+
+label {
+  font-weight: 600;
+  color: var(--cor-primaria);
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+input::placeholder {
+  color: #aaa;
+  font-style: italic;
 }

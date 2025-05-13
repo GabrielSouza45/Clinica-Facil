@@ -1,3 +1,81 @@
-<app-layout-principal>
-  Coloca o codigo HTML aqui, manter padrao para TODAS AS TELAS
-</app-layout-principal>
+<form [formGroup]="formCadastro" (ngSubmit)="cadastrar()">
+  <!-- Nome -->
+  <app-input-primario
+    class="input-cadastro input-padrao"
+    [addLabel]="true"
+    label="Nome:"
+    inputName="nome"
+    placeHolder="Digite seu nome"
+    formControlName="nome"
+  ></app-input-primario>
+
+  <!-- Email -->
+  <app-input-primario
+    class="input-cadastro input-padrao"
+    [addLabel]="true"
+    label="Email:"
+    inputName="email"
+    placeHolder="exemplo@email.com"
+    formControlName="email"
+  ></app-input-primario>
+
+  <!-- Senha -->
+  <app-input-primario
+    class="input-cadastro input-padrao"
+    [addLabel]="true"
+    label="Senha:"
+    inputName="senha"
+    placeHolder="Digite a senha"
+    formControlName="senha"
+    tipo="password"
+  ></app-input-primario>
+
+  <!-- Confirmar Senha -->
+  <app-input-primario
+    class="input-cadastro input-padrao"
+    [addLabel]="true"
+    label="Confirmar Senha:"
+    inputName="confirmarSenha"
+    placeHolder="Confirme a senha"
+    formControlName="confirmarSenha"
+    tipo="password"
+  ></app-input-primario>
+
+  <!-- Tipo de Usuário -->
+  <app-input-primario
+    class="input-cadastro input-padrao"
+    [addLabel]="true"
+    label="Tipo de Usuário:"
+    inputName="tipo"
+    placeHolder="PATIENT ou DOCTOR"
+    formControlName="tipo"
+  ></app-input-primario>
+
+  <!-- CPF (apenas para PATIENT) -->
+  <app-input-primario
+    *ngIf="formCadastro.get('tipo')?.value === 'PATIENT'"
+    class="input-cadastro input-padrao"
+    [addLabel]="true"
+    label="CPF:"
+    inputName="cpf"
+    placeHolder="xxx.xxx.xxx-xx"
+    formControlName="cpf"
+    maxLength="11"
+  ></app-input-primario>
+
+  <!-- CRM (apenas para DOCTOR) -->
+  <app-input-primario
+    *ngIf="formCadastro.get('tipo')?.value === 'DOCTOR'"
+    class="input-cadastro input-padrao"
+    [addLabel]="true"
+    label="CRM:"
+    inputName="crm"
+    placeHolder="Digite o CRM"
+    formControlName="crm"
+  ></app-input-primario>
+
+  <!-- Botão de cadastrar -->
+  <button class="botao-cadastrar" type="submit" [disabled]="formCadastro.invalid">
+    Cadastrar
+  </button>
+</form>
