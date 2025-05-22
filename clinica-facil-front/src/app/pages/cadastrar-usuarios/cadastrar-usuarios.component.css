@@ -1,132 +1,130 @@
-form {
-  width: 100%;
+/* Container principal com menu lateral */
+.container-cadastro {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 40px;
-  padding: 20px 0;
+  gap: 20px;
+  padding: 20px;
 }
 
-.cabecalho {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
+/* Menu lateral */
+.menu-lateral {
+  width: 220px;
+  background-color: #f9f9f9;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  height: fit-content;
 }
 
-.cabecalho h2 {
-  font-size: 32px;
+.opcao-menu {
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.opcao-menu:hover {
+  background-color: #eaeaea;
+}
+
+.opcao-menu.selecionado {
+  background-color: var(--cor-primaria);
+  color: #fff;
   font-weight: bold;
-  color: var(--cor-primaria);
-  margin-bottom: 20px;
+  border-color: var(--cor-primaria);
 }
 
-.divisor {
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-
-hr {
-  width: 65%;
-  max-width: 750px;
-  border: 0.5px solid var(--cor-primaria);
-}
-
-.filtros {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  font-size: 20px;
-  margin-bottom: 20px;
-}
-
-.inferior {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.form-cadastro {
+/* Modal e formulário */
+.modal-cadastro .form-cadastro {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
-  max-width: 850px;
-  margin-top: 20px;
+  padding: 20px;
 }
 
-.input-cadastro {
-  width: 100%;
-  max-width: 400px;
-}
-
-.input-padrao {
+/* Inputs que ocupam toda a linha */
+.modal-cadastro .input-padrao,
+.modal-cadastro .input-group {
   grid-column: span 2;
 }
 
-/* Estilo do botão de cadastro */
-.botao-cadastrar {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
+/* Estilo dos grupos de input */
+.modal-cadastro .input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--cor-primaria);
+  font-size: 15px;
 }
 
-.botao-cadastrar button {
+.modal-cadastro .input-group select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+/* Estilo dos inputs primários */
+.modal-cadastro app-input-primario {
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Botão de submit */
+.modal-cadastro .botao-submit {
+  grid-column: span 2;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.modal-cadastro .botao-submit button {
   background-color: var(--cor-primaria);
-  color: white;
-  padding: 14px 28px;
+  color: #fff;
+  padding: 12px 24px;
   font-size: 16px;
   font-weight: bold;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition: all 0.3s ease;
   width: 100%;
-  max-width: 220px;
+  max-width: 200px;
 }
 
-.botao-cadastrar button:disabled {
+.modal-cadastro .botao-submit button:hover {
+  background-color: var(--cor-secundaria);
+  transform: scale(1.03);
+}
+
+.modal-cadastro .botao-submit button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+  transform: none;
 }
 
-.botao-cadastrar button:hover {
-  background-color: var(--cor-secundaria);
-  transform: scale(1.05);
-}
+/* Responsividade */
+@media (max-width: 768px) {
+  .modal-cadastro .form-cadastro {
+    grid-template-columns: 1fr;
+  }
 
-/* Estilos para o Input de Formulários */
-input, select, textarea {
-  width: 100%;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-  margin-bottom: 15px;
-}
+  .modal-cadastro .input-padrao,
+  .modal-cadastro .input-group {
+    grid-column: span 1;
+  }
 
-input:focus, select:focus, textarea:focus {
-  border-color: var(--cor-primaria);
-  outline: none;
-}
+  .menu-lateral {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 
-input[readonly] {
-  background-color: #f9f9f9;
-}
-
-label {
-  font-weight: 600;
-  color: var(--cor-primaria);
-  margin-bottom: 8px;
-  font-size: 18px;
-}
-
-input::placeholder {
-  color: #aaa;
-  font-style: italic;
+  .container-cadastro {
+    flex-direction: column;
+  }
 }

@@ -1,4 +1,5 @@
 export enum Group {
   ADMINISTRADOR = 'ADMINISTRADOR',
-  ESTOQUISTA = 'ESTOQUISTA'
+  PATIENT = 'PATIENT',
+  Doctor = 'DOCTOR'
 }

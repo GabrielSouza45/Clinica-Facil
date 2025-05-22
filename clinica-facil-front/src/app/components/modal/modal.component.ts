@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, TemplateRef } from '@angular/core';
-import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Component, EventEmitter, Input, Output} from '@angular/core';
+import { FormGroup, ReactiveFormsModule} from '@angular/forms';
 import { BotaoComponent } from '../botao/botao.component';
 
 @Component({
@@ -18,7 +17,7 @@ import { BotaoComponent } from '../botao/botao.component';
 export class ModalComponent {
   isModalOpen = false;
   @Input()tituloModal: string = '';
-  @Input()formGroup: FormGroup;
+  /*@Input()formGroup: FormGroup; porquê não está indo */
   @Input()textoBotao: string = '';
   @Output("fecharModal") fechar = new EventEmitter;
   @Output("submit") submit = new EventEmitter;

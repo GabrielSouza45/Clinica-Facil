@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { HomeComponent } from './pages/home/home.component';
 import { CadastrarUsuariosComponent } from './pages/cadastrar-usuarios/cadastrar-usuarios.component';
+import { MenuLateralComponent } from './components/menu-lateral/menu-lateral/menu-lateral.component';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,10 @@ export const routes: Routes = [
   {
     path:'cadastrar-usuarios',
     component: CadastrarUsuariosComponent
+  },
+  {
+    path:'menu-lateral',
+    component: MenuLateralComponent
   },
   {
     path:'consultas-agendadas',

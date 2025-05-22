@@ -1,81 +1,64 @@
-<form [formGroup]="formCadastro" (ngSubmit)="cadastrar()">
-  <!-- Nome -->
-  <app-input-primario
-    class="input-cadastro input-padrao"
-    [addLabel]="true"
-    label="Nome:"
-    inputName="nome"
-    placeHolder="Digite seu nome"
-    formControlName="nome"
-  ></app-input-primario>
+<div class="container-cadastro">
+  <!-- Menu lateral -->
+  <aside class="menu-lateral">
+    <button (click)="abrirModalComGrupo(Group.PATIENT)">Cadastrar Paciente</button>
+    <button (click)="abrirModalComGrupo(Group.Doctor)">Cadastrar Médico</button>
+  </aside>
 
-  <!-- Email -->
-  <app-input-primario
-    class="input-cadastro input-padrao"
-    [addLabel]="true"
-    label="Email:"
-    inputName="email"
-    placeHolder="exemplo@email.com"
-    formControlName="email"
-  ></app-input-primario>
+  <!-- Modal -->
+  <app-modal
+    *ngIf="modalAberto"
+    (fecharModal)="fecharModal()"
+    (submit)="cadastrar()"
+    [tituloModal]="'Cadastro - ' + (grupoSelecionado === Group.PATIENT ? 'Paciente' : 'Médico')"
+    textoBotao="Cadastrar"
+  >
+    <form [formGroup]="formCadastroUsuario" class="form-cadastro p-3">
+      <app-input-primario
+        class="input-padrao"
+        [addLabel]="true"
+        label="Nome:"
+        formControlName="nome"
+      ></app-input-primario>
 
-  <!-- Senha -->
-  <app-input-primario
-    class="input-cadastro input-padrao"
-    [addLabel]="true"
-    label="Senha:"
-    inputName="senha"
-    placeHolder="Digite a senha"
-    formControlName="senha"
-    tipo="password"
-  ></app-input-primario>
+      <app-input-primario
+        class="input-padrao"
+        [addLabel]="true"
+        label="Email:"
+        formControlName="email"
+      ></app-input-primario>
 
-  <!-- Confirmar Senha -->
-  <app-input-primario
-    class="input-cadastro input-padrao"
-    [addLabel]="true"
-    label="Confirmar Senha:"
-    inputName="confirmarSenha"
-    placeHolder="Confirme a senha"
-    formControlName="confirmarSenha"
-    tipo="password"
-  ></app-input-primario>
+      <app-input-primario
+        *ngIf="grupoSelecionado === Group.PATIENT"
+        class="input-padrao"
+        [addLabel]="true"
+        label="CPF:"
+        formControlName="cpf"
+      ></app-input-primario>
 
-  <!-- Tipo de Usuário -->
-  <app-input-primario
-    class="input-cadastro input-padrao"
-    [addLabel]="true"
-    label="Tipo de Usuário:"
-    inputName="tipo"
-    placeHolder="PATIENT ou DOCTOR"
-    formControlName="tipo"
-  ></app-input-primario>
+      <app-input-primario
+        *ngIf="grupoSelecionado === Group.Doctor"
+        class="input-padrao"
+        [addLabel]="true"
+        label="CRM:"
+        formControlName="crm"
+      ></app-input-primario>
 
-  <!-- CPF (apenas para PATIENT) -->
-  <app-input-primario
-    *ngIf="formCadastro.get('tipo')?.value === 'PATIENT'"
-    class="input-cadastro input-padrao"
-    [addLabel]="true"
-    label="CPF:"
-    inputName="cpf"
-    placeHolder="xxx.xxx.xxx-xx"
-    formControlName="cpf"
-    maxLength="11"
-  ></app-input-primario>
+      <app-input-primario
+        class="input-padrao"
+        [addLabel]="true"
+        label="Senha:"
+        type="password"
+        formControlName="senha"
+      ></app-input-primario>
 
-  <!-- CRM (apenas para DOCTOR) -->
-  <app-input-primario
-    *ngIf="formCadastro.get('tipo')?.value === 'DOCTOR'"
-    class="input-cadastro input-padrao"
-    [addLabel]="true"
-    label="CRM:"
-    inputName="crm"
-    placeHolder="Digite o CRM"
-    formControlName="crm"
-  ></app-input-primario>
-
-  <!-- Botão de cadastrar -->
-  <button class="botao-cadastrar" type="submit" [disabled]="formCadastro.invalid">
-    Cadastrar
-  </button>
-</form>
+      <app-input-primario
+        class="input-padrao"
+        [addLabel]="true"
+        label="Confirmar Senha:"
+        type="password"
+        formControlName="confirmarSenha"
+      ></app-input-primario>
+    </form>
+  </app-modal>
+</div>
