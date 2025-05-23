@@ -1,19 +1,41 @@
-<div class="container-cadastro">
-  <!-- Menu lateral -->
-  <aside class="menu-lateral">
-    <button (click)="abrirModalComGrupo(Group.PATIENT)">Cadastrar Paciente</button>
-    <button (click)="abrirModalComGrupo(Group.Doctor)">Cadastrar Médico</button>
-  </aside>
+<div class="layout">
+ <!-- Menu lateral fixo -->
+ <aside class="menu-lateral">
+ <div class="logo">Clinica Fácil</div>
 
-  <!-- Modal -->
-  <app-modal
-    *ngIf="modalAberto"
-    (fecharModal)="fecharModal()"
-    (submit)="cadastrar()"
-    [tituloModal]="'Cadastro - ' + (grupoSelecionado === Group.PATIENT ? 'Paciente' : 'Médico')"
-    textoBotao="Cadastrar"
-  >
-    <form [formGroup]="formCadastroUsuario" class="form-cadastro p-3">
+ <div
+ class="opcao-menu"
+ [class.selecionado]="grupoSelecionado === Group.PATIENT"
+ (click)="abrirModalComGrupo(Group.PATIENT)">
+ Cadastrar Paciente
+ </div>
+
+ <div
+ class="opcao-menu"
+ [class.selecionado]="grupoSelecionado === Group.Doctor"
+ (click)="abrirModalComGrupo(Group.Doctor)">
+ Cadastrar Médico
+ </div>
+
+ <div class="usuario-logado" (click)="Group.Doctor">
+ <P>USUARIO</P>
+ <span class="logout">Sair</span>
+ </div>
+ </aside>
+
+ <!-- Conteúdo principal -->
+ <main class="conteudo">
+ <app-modal
+ *ngIf="modalAberto"
+ class="modal-cadastro"
+ (fecharModal)="fecharModal()"
+ (submit)="cadastrar()"
+ [tituloModal]="'Cadastro - ' + (grupoSelecionado === Group.PATIENT ? 'Paciente' : 'Médico')"
+ textoBotao="Cadastrar">
+ 
+ <form [formGroup]="formCadastroUsuario" class="form-cadastro">
+ <form [formGroup]="formCadastroUsuario" class="form-cadastro">
+        <form [formGroup]="formCadastroUsuario" class="form-cadastro p-3">
       <app-input-primario
         class="input-padrao"
         [addLabel]="true"
@@ -60,5 +82,9 @@
         formControlName="confirmarSenha"
       ></app-input-primario>
     </form>
-  </app-modal>
+      </form>
+ </form>
+ </app-modal>
+ </main>
 </div>
+

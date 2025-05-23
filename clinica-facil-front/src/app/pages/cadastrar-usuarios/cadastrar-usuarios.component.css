@@ -1,130 +1,73 @@
-/* Container principal com menu lateral */
-.container-cadastro {
+/* Layout principal com menu lateral fixo */
+.layout {
   display: flex;
-  gap: 20px;
-  padding: 20px;
+  height: 100vh;
+  overflow: hidden;
 }
 
-/* Menu lateral */
+/* Menu lateral fixo */
 .menu-lateral {
-  width: 220px;
-  background-color: #f9f9f9;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
-  height: fit-content;
+  width: 240px;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 15px;
+  border-right: 1px solid #dee2e6;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--cor-primaria);
+  margin-bottom: 30px;
+  text-align: center;
 }
 
 .opcao-menu {
   padding: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 6px;
-  cursor: pointer;
   text-align: center;
+  cursor: pointer;
   font-weight: 500;
   transition: all 0.3s ease;
 }
 
 .opcao-menu:hover {
-  background-color: #eaeaea;
+  background-color: #e9ecef;
 }
 
 .opcao-menu.selecionado {
   background-color: var(--cor-primaria);
-  color: #fff;
+  color: white;
   font-weight: bold;
   border-color: var(--cor-primaria);
 }
 
-/* Modal e formulário */
-.modal-cadastro .form-cadastro {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  width: 100%;
-  padding: 20px;
-}
-
-/* Inputs que ocupam toda a linha */
-.modal-cadastro .input-padrao,
-.modal-cadastro .input-group {
-  grid-column: span 2;
-}
-
-/* Estilo dos grupos de input */
-.modal-cadastro .input-group label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-  color: var(--cor-primaria);
-  font-size: 15px;
-}
-
-.modal-cadastro .input-group select {
-  width: 100%;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 15px;
-}
-
-/* Estilo dos inputs primários */
-.modal-cadastro app-input-primario {
-  display: block;
-  margin-bottom: 10px;
-}
-
-/* Botão de submit */
-.modal-cadastro .botao-submit {
-  grid-column: span 2;
+/* Rodapé do menu com nome do usuário */
+.usuario-logado {
   text-align: center;
-  margin-top: 20px;
-}
-
-.modal-cadastro .botao-submit button {
-  background-color: var(--cor-primaria);
-  color: #fff;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
   cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  max-width: 200px;
+  padding-top: 20px;
+  border-top: 1px solid #ccc;
 }
 
-.modal-cadastro .botao-submit button:hover {
-  background-color: var(--cor-secundaria);
-  transform: scale(1.03);
+.usuario-logado .logout {
+  color: var(--cor-secundaria);
+  font-weight: bold;
+  display: block;
+  margin-top: 5px;
 }
 
-.modal-cadastro .botao-submit button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .modal-cadastro .form-cadastro {
-    grid-template-columns: 1fr;
-  }
-
-  .modal-cadastro .input-padrao,
-  .modal-cadastro .input-group {
-    grid-column: span 1;
-  }
-
-  .menu-lateral {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .container-cadastro {
-    flex-direction: column;
-  }
+/* Conteúdo principal */
+.conteudo {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
 }

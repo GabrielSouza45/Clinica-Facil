@@ -22,6 +22,7 @@ import { DoctorService } from '../../services/doctorService/doctor.service';
   styleUrl: './cadastrar-usuarios.component.css',
 })
 export class CadastrarUsuariosComponent {
+[x: string]: any;
   formCadastroUsuario!: FormGroup;
   modalAberto: boolean = false;
   clickCadastro: boolean = true;
