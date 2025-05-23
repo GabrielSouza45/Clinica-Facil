@@ -48,8 +48,8 @@ export class MenuLateralComponent {
     return this.router.url === route;
   }
 
-  logOut(){
+  /*logOut(){
     this.authService.logout();
-  }
+  }*/
 
 }

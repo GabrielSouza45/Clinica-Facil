@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
-import { Usuario } from '../../../modelo/Usuario';
 import { PageChangedEvent, PaginationModule } from 'ngx-bootstrap/pagination';
 import { FormsModule } from '@angular/forms';
 
@@ -33,7 +32,6 @@ export class TablePaginationComponent {
   @Input() totalItens: number = 50;
   @Output() pageChangeEvent = new EventEmitter<number>();
   page?: number = 1;
-  currentPage: number = this.page;
 
   pageChanged(event: PageChangedEvent): void {
 

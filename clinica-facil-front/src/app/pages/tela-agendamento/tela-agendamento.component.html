@@ -1,0 +1,72 @@
+<div class="layout">
+  <!-- Menu lateral -->
+  <aside class="menu-lateral">
+    <div class="logo">PharmaSW</div>
+
+    <div class="opcao-menu selecionado">
+      Agendar Consulta
+    </div>
+
+    <div class="usuario-logado" (click)="logout()">
+      {{ nomeUsuario }} <br />
+      <span class="logout">Sair</span>
+    </div>
+  </aside>
+
+  <!-- Conteúdo principal -->
+  <main class="conteudo">
+    <div class="cabecalho-consultas">
+      <h2>Consultas Agendadas</h2>
+      <button class="botao-agendar" (click)="abrirModalAgendamento()">+ Nova Consulta</button>
+    </div>
+
+    <app-table-pagination
+      [dados]="consultas"
+      [acoes]="acoes"
+      [totalItens]="totalItens"
+      (pageChangeEvent)="pageChanged($event)">
+    </app-table-pagination>
+
+    <!-- Modal de agendamento/reagendamento -->
+    <app-modal
+      *ngIf="modalAberto"
+      class="modal-cadastro"
+      (fecharModal)="fecharModal()"
+      (submit)="mudaEstadoClick()"
+      [tituloModal]="clickCadastro ? 'Agendar Consulta' : 'Reagendar Consulta'"
+      textoBotao="Confirmar">
+      
+      <form [formGroup]="formConsulta" class="form-cadastro">
+        <app-input-primario
+          class="input-padrao"
+          [addLabel]="true"
+          label="Paciente:"
+          formControlName="paciente">
+        </app-input-primario>
+
+        <app-input-primario
+          class="input-padrao"
+          [addLabel]="true"
+          label="Médico:"
+          formControlName="medico">
+        </app-input-primario>
+
+        <app-input-primario
+          class="input-padrao"
+          [addLabel]="true"
+          label="Data:"
+          type="date"
+          formControlName="data">
+        </app-input-primario>
+
+        <app-input-primario
+          class="input-padrao"
+          [addLabel]="true"
+          label="Hora:"
+          type="date"
+          formControlName="hora">
+        </app-input-primario>
+      </form>
+    </app-modal>
+  </main>
+</div>

@@ -1,0 +1,88 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.menu-lateral {
+  width: 240px;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 15px;
+  border-right: 1px solid #dee2e6;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--cor-primaria);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.opcao-menu {
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.opcao-menu.selecionado {
+  background-color: var(--cor-primaria);
+  color: white;
+  font-weight: bold;
+  border-color: var(--cor-primaria);
+}
+
+.usuario-logado {
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  padding-top: 20px;
+  border-top: 1px solid #ccc;
+}
+
+.usuario-logado .logout {
+  color: var(--cor-secundaria);
+  font-weight: bold;
+  display: block;
+  margin-top: 5px;
+}
+
+.conteudo {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.cabecalho-consultas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.botao-agendar {
+  background-color: var(--cor-primaria);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botao-agendar:hover {
+  background-color: var(--cor-secundaria);
+  transform: scale(1.03);
+}
