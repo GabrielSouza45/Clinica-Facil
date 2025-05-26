@@ -21,7 +21,7 @@ export class MenuLateralComponent {
 
   constructor(
     public router: Router,
-    public authService: AuthService
+    public authService : AuthService,
   ){
     this.grupo = sessionStorage.getItem("group") || '';
 
@@ -48,8 +48,8 @@ export class MenuLateralComponent {
     return this.router.url === route;
   }
 
-  /*logOut(){
+  logOut(){
     this.authService.logout();
-  }*/
+  }
 
 }

@@ -29,7 +29,7 @@ export class AuthService {
     );
   }
 
-  logout(p0: string) {
+  logout() {
     sessionStorage.clear();
     this.isUserAuthenticated.next(false);
     this.userPermission.next(null);
