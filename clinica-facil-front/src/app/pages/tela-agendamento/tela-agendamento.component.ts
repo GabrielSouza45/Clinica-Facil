@@ -32,7 +32,7 @@ export class TelaAgendamentoComponent {
   usuarioAtual: string = '';
   isMedico: boolean = false;
   isPaciente: boolean = false;
-  today: string = '';
+  today: string = new Date().toISOString().split('T')[0];
 
   constructor(
     private fb: FormBuilder, 
@@ -42,22 +42,24 @@ export class TelaAgendamentoComponent {
   ) {
     this.inicializarFormulario();
     this.carregarConsultas();
+    this.usuarioAtual = this.authService.getUserName() || '';
+    this.isMedico = this.authService.getUserRole() === 'DOCTOR';
+    this.isPaciente = this.authService.getUserRole() === 'PATIENT';
   }
 
-  
-  // Ações da tabela
+
   acoes = [
     {
       nome: 'Reagendar',
       icone: 'bi bi-calendar-check',
       funcao: (item: any) => this.abrirModalReagendamento(item),
-      mostrar: (item: any) => this.podeEditar(item)
+      mostrar: (item: any) => this.isPaciente && this.podeEditar(item)
     },
     {
       nome: 'Cancelar',
       icone: 'bi bi-x-circle',
       funcao: (item: any) => this.cancelarConsulta(item),
-      mostrar: (item: any) => this.podeEditar(item)
+      mostrar: (item: any) => this.isPaciente && this.podeEditar(item)
     },
   ];
 
@@ -72,18 +74,36 @@ export class TelaAgendamentoComponent {
     const role = this.authService.getUserRole();
     const nome = this.authService.getUserName();
 
-    if (role === 'DOCTOR') {
-      this.formConsulta.patchValue({ doctor: nome });
-      this.formConsulta.get('doctor')?.disable();
-    } else if (role === 'PATIENT') {
+    if (role === 'PATIENT') {
       this.formConsulta.patchValue({ patient: nome });
       this.formConsulta.get('patient')?.disable();
     }
   }
 
+  verificarDisponibilidadeMedico(consulta: any): boolean {
+    const consultasConflitantes = this.consultas.filter(c => 
+      c.doctor === consulta.doctor && 
+      c.date === consulta.date &&
+      c.time === consulta.time &&
+      (!this.consultaSelecionada || c.id !== this.consultaSelecionada.id)
+    );
+
+    return consultasConflitantes.length === 0;
+  }
+
+  notificarPaciente(consulta: any) {
+    const mensagem = `Consulta agendada com ${consulta.doctor} para ${consulta.date} às ${consulta.time}`;
+    this.toastr.info(mensagem, 'Notificação');
+  }
+
   abrirModalAgendamento() {
     if (!this.authService.isAuthenticated()) {
       this.toastr.warning('Por favor, faça login para agendar consultas');
+      return;
+    }
+
+    if (this.isMedico) {
+      this.toastr.warning('Médicos não podem agendar consultas');
       return;
     }
 
@@ -139,24 +159,38 @@ export class TelaAgendamentoComponent {
 
   agendarConsulta() {
     const formValue = this.formConsulta.getRawValue();
+    
+    if (!this.verificarDisponibilidadeMedico(formValue)) {
+      this.toastr.error('O médico não está disponível no horário selecionado');
+      return;
+    }
+
     const novaConsulta = {
       ...formValue,
       id: Date.now(),
       status: 'Agendada',
-      idPatient: this.authService.getUserRole() === 'PATIENT' ? this.authService.getIdUser() : null,
-      idDoctor: this.authService.getUserRole() === 'DOCTOR' ? this.authService.getIdUser() : null
+      idPatient: this.authService.getIdUser(),
+      idDoctor: null 
     };
 
     this.consultas.push(novaConsulta);
     this.toastr.success('Consulta agendada com sucesso!');
+    this.notificarPaciente(novaConsulta);
     this.modalAberto = false;
     this.carregarConsultas();
   }
 
   reagendarConsulta() {
     const formValue = this.formConsulta.getRawValue();
+    
+    if (!this.verificarDisponibilidadeMedico(formValue)) {
+      this.toastr.error('O médico não está disponível no horário selecionado');
+      return;
+    }
+
     Object.assign(this.consultaSelecionada, formValue);
     this.toastr.success('Consulta reagendada com sucesso!');
+    this.notificarPaciente(this.consultaSelecionada);
     this.modalAberto = false;
   }
 
@@ -169,17 +203,14 @@ export class TelaAgendamentoComponent {
   }
 
   podeEditar(consulta: any): boolean {
-    const role = this.authService.getUserRole();
-    const nome = this.authService.getUserName();
-
-    return (role === 'DOCTOR' && consulta.doctor === nome) ||
-           (role === 'PATIENT' && consulta.patient === nome);
+    return this.isPaciente && consulta.patient === this.authService.getUserName();
   }
 
   carregarConsultas() {
     const userName = this.authService.getUserName();
     const userRole = this.authService.getUserRole();
 
+    // Dados 
     const mockConsultas = [
       {
         id: 1,
@@ -192,7 +223,7 @@ export class TelaAgendamentoComponent {
       {
         id: 2,
         patient: 'Maria Clara',
-        doctor: 'Dra. Ana Lima',
+        doctor: 'Dr. Carlos Souza',
         date: '2025-06-02',
         time: '09:00',
         status: 'Agendada'

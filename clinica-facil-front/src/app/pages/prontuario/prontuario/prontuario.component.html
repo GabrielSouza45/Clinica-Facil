@@ -1,0 +1,153 @@
+<div class="container">
+  <h2 class="text-center my-4">Prontuários Médicos</h2>
+    
+  <!-- Formulário do Prontuário -->
+  <div class="card mb-4">
+    <div class="card-header">
+      {{ editando ? 'Editar Prontuário' : 'Novo Prontuário' }}
+    </div>
+    <div class="card-body">
+      <form [formGroup]="formProntuario" (ngSubmit)="salvarProntuario()">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Paciente</label>
+            <input type="text" class="form-control" formControlName="paciente">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Data da Consulta</label>
+            <input type="date" class="form-control" formControlName="dataConsulta">
+          </div>
+        </div>
+
+        <h4 class="mt-4">Itens do Prontuário</h4>
+
+        <div formArrayName="itens" class="mb-3">
+          <div *ngFor="let item of itens.controls; let i = index" [formGroupName]="i" class="item-group mb-3 p-3 border rounded">
+            <div class="row">
+              <div class="col-md-4">
+                <label class="form-label">Realizado</label>
+                <input type="text" class="form-control" formControlName="realizado">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Causa</label>
+                <input type="text" class="form-control" formControlName="causa">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Procedimento</label>
+                <input type="text" class="form-control" formControlName="procedimento">
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-danger w-100" (click)="removerItem(i)">
+                  Remover
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-primary" (click)="adicionarItem()">
+            + Adicionar Item
+            </button>
+
+          
+          <div>
+            <button type="button" class="btn btn-secondary me-2" (click)="cancelarEdicao()" *ngIf="editando">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-success">
+              {{ editando ? 'Atualizar' : 'Salvar' }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de Prontuários -->
+  <div class="card">
+    <div class="card-header">
+      Prontuários Cadastrados
+    </div>
+    <div class="card-body">
+      <div *ngIf="prontuarios.length === 0" class="alert alert-info">
+        Nenhum prontuário cadastrado.
+      </div>
+
+      <div *ngIf="prontuarios.length > 0">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Data da Consulta</th>
+                <th>Itens</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let prontuario of prontuarios">
+                <td>{{ prontuario.paciente }}</td>
+                <td>{{ prontuario.dataConsulta | date:'dd/MM/yyyy' }}</td>
+                <td>{{ prontuario.itens.length }}</td>
+                <td>
+                  <button class="btn btn-sm btn-info me-2" (click)="visualizarProntuario(prontuario)">
+                    Visualizar
+                  </button>
+                  <button class="btn btn-sm btn-warning me-2" (click)="editarProntuario(prontuario)">
+                    Editar
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="excluirProntuario(prontuario.id)">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Visualização -->
+  <div *ngIf="prontuarioSelecionado" class="modal-backdrop show"></div>
+  <div *ngIf="prontuarioSelecionado" class="modal show d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Prontuário de {{ prontuarioSelecionado.paciente }}</h5>
+          <button type="button" class="btn-close" (click)="prontuarioSelecionado = null"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <strong>Paciente:</strong> {{ prontuarioSelecionado.paciente }}
+          </div>
+          <div class="mb-3">
+            <strong>Data da Consulta:</strong> {{ prontuarioSelecionado.dataConsulta | date:'dd/MM/yyyy' }}
+          </div>
+          
+          <h5 class="mt-4">Itens do Prontuário</h5>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Realizado</th>
+                <th>Causa</th>
+                <th>Procedimento</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of prontuarioSelecionado.itens">
+                <td>{{ item.realizado }}</td>
+                <td>{{ item.causa }}</td>
+                <td>{{ item.procedimento }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="prontuarioSelecionado = null">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,7 +4,7 @@
     <div class="logo">Clinica Fácil</div>
 
     <div class="opcao-menu selecionado">
-      Agendar Consulta
+      {{ isMedico ? 'Minhas Consultas' : 'Agendar Consulta' }}
     </div>
 
     <div class="usuario-logado" *ngIf="authService.isAuthenticated(); else loginLink">
@@ -29,11 +29,11 @@
   <!-- Conteúdo principal -->
   <main class="conteudo">
     <div class="cabecalho-consultas">
-      <h2>Minhas Consultas</h2>
+      <h2>{{ isMedico ? 'Minhas Consultas Agendadas' : 'Minhas Consultas' }}</h2>
       <button 
         class="botao-agendar" 
         (click)="abrirModalAgendamento()"
-        [disabled]="!authService.isAuthenticated()">
+        [disabled]="!authService.isAuthenticated() || isMedico">
         + Nova Consulta
       </button>
     </div>
@@ -43,7 +43,7 @@
     </div>
 
     <div *ngIf="authService.isAuthenticated() && consultas.length === 0" class="sem-consultas">
-      <p>Nenhuma consulta agendada.</p>
+      <p>{{ isMedico ? 'Nenhuma consulta agendada para você.' : 'Nenhuma consulta agendada.' }}</p>
     </div>
 
     <app-table-pagination
@@ -69,7 +69,7 @@
           [addLabel]="true"
           label="Paciente:"
           formControlName="patient"
-          [disabled]="isPaciente">
+          [disabled]="true">
         </app-input-primario>
 
         <app-input-primario
@@ -77,7 +77,7 @@
           [addLabel]="true"
           label="Médico:"
           formControlName="doctor"
-          [disabled]="isMedico">
+          [disabled]="false">
         </app-input-primario>
 
         <app-input-primario

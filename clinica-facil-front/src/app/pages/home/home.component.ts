@@ -4,7 +4,7 @@ import { LayoutPrincipalComponent } from "../layout-principal/layout-principal.c
 
 @Component({
   selector: 'app-home',
-  imports: [MenuLateralComponent, LayoutPrincipalComponent],
+  imports: [LayoutPrincipalComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })

@@ -4,10 +4,11 @@ import { HomeComponent } from './pages/home/home.component';
 import { CadastrarUsuariosComponent } from './pages/cadastrar-usuarios/cadastrar-usuarios.component';
 import { MenuLateralComponent } from './components/menu-lateral/menu-lateral/menu-lateral.component';
 import { TelaAgendamentoComponent } from './pages/tela-agendamento/tela-agendamento.component';
+import { ProntuarioComponent } from './pages/prontuario/prontuario/prontuario.component';
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'login',
     component: LoginComponent
   },
   {
@@ -23,19 +24,15 @@ export const routes: Routes = [
     component: MenuLateralComponent
   },
   {
-    path:'consultas-agendadas',
-    component: HomeComponent // ALTERAR
-  },
-  {
     path:'agendamento',
-    component: TelaAgendamentoComponent // ALTERAR
+    component: TelaAgendamentoComponent 
   },
   {
-    path:'consultar-prontuario',
-    component: HomeComponent // ALTERAR
+    path:'prontuario',
+    component: ProntuarioComponent
   },
   {
-    path:'adicionar-prontuario',
-    component: HomeComponent // ALTERAR
+    path:'consultar_resultados',
+    component: HomeComponent 
   }
 ];
