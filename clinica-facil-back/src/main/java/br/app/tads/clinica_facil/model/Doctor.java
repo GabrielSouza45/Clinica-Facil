@@ -8,14 +8,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 @Entity(name = "doctor")
 @Table(name = "doctor")
-@EqualsAndHashCode(of = "id")
-public class Doctor  implements UserDetails, IUser {
+@EqualsAndHashCode(of = "id", callSuper = false)
+public class Doctor extends UsersAbstract implements UserDetails, IUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,7 @@ public class Doctor  implements UserDetails, IUser {
     private String email;
     private String password;
     private String name;
-    private Date birth;
+    private LocalDate birth;
     private String crm;
 
     @Enumerated(EnumType.STRING)
@@ -33,7 +34,7 @@ public class Doctor  implements UserDetails, IUser {
     public Doctor() {
     }
 
-    public Doctor(String email, String password, String name, Date birth, String crm, Status status) {
+    public Doctor(String email, String password, String name, LocalDate birth, String crm, Status status) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -85,11 +86,11 @@ public class Doctor  implements UserDetails, IUser {
         this.name = name;
     }
 
-    public Date getBirth() {
+    public LocalDate getBirth() {
         return birth;
     }
 
-    public void setBirth(Date birth) {
+    public void setBirth(LocalDate birth) {
         this.birth = birth;
     }
 

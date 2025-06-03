@@ -3,13 +3,14 @@ package br.app.tads.clinica_facil.model.dtos;
 import br.app.tads.clinica_facil.model.Patient;
 import br.app.tads.clinica_facil.model.enums.Status;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class PatientDTO {
     private Long id;
     private String email;
     private String name;
-    private Date birth;
+    private LocalDate birth;
     private String cpf;
     private Status status;
 
@@ -49,11 +50,11 @@ public class PatientDTO {
         this.name = name;
     }
 
-    public Date getBirth() {
+    public LocalDate getBirth() {
         return birth;
     }
 
-    public void setBirth(Date birth) {
+    public void setBirth(LocalDate birth) {
         this.birth = birth;
     }
 

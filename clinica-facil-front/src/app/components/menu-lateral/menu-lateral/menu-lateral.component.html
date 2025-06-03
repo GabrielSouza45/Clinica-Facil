@@ -1,10 +1,11 @@
 <div class="d-flex flex-column flex-shrink-0 p-3 main-div">
   <a
-    href="/pagina-inicial"
+    href="/home"
     class="d-flex align-items-center mb-3 mb-md-0 link-dark text-decoration-none"
   >
     <span class="fs-4 titulo">
-      <img src="assets/logo.png" alt="Logo Clinica facil." />
+<!-- <img src="assets/logo.PNG" alt="Logo Clínica Fácil" /> -->
+
       Clínica Fácil
     </span>
   </a>
@@ -107,18 +108,8 @@
 
   <hr />
 
-  <div class="dropdown">
-    <a
-      href="#"
-      class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle"
-      id="dropdownUser2"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      <strong>{{ userLogado }}</strong>
-    </a>
-    <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
-      <li><a class="dropdown-item" (click)="logOut()">Sair</a></li>
-    </ul>
+  <div class="logout">
+    <p>{{userLogado}}</p>
+    <a class="dropdown-item" (click)="logOut()">Sair</a>
   </div>
 </div>

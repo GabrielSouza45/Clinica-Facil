@@ -33,6 +33,7 @@ public class AuthenticationController {
     private ResponseBuilder responseBuilder;
 
     @PostMapping("/login")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> login(@RequestBody Login login) {
         try{
             var usernamePassword = new UsernamePasswordAuthenticationToken(

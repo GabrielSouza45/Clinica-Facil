@@ -1,6 +1,6 @@
 import { Status } from "./enums/Status";
 
-export class Usuario {
+export interface Usuario {
   id?: number;
   name?: string;
   email?: string;

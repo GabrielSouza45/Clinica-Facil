@@ -18,5 +18,6 @@ main {
     align-items: center;
     width: 80vw;
     height: 100%;
+    padding: 15px;
   }
 }

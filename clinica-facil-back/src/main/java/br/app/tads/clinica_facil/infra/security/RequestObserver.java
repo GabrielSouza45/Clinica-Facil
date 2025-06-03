@@ -32,6 +32,8 @@ public class RequestObserver extends OncePerRequestFilter {
         // Log do corpo da requisição
         String requestBody = getRequestBody(wrappedRequest);
 
+        System.out.println("token -> " + wrappedRequest.getHeader("Authorization"));
+
         System.out.println("request -> " + requestBody);
 
         // Log do corpo da resposta (opcional)

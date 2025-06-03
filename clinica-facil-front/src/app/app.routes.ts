@@ -8,7 +8,7 @@ import { ProntuarioComponent } from './pages/prontuario/prontuario/prontuario.co
 
 export const routes: Routes = [
   {
-    path: 'login',
+    path: '',
     component: LoginComponent
   },
   {
@@ -20,19 +20,19 @@ export const routes: Routes = [
     component: CadastrarUsuariosComponent
   },
   {
-    path:'menu-lateral',
-    component: MenuLateralComponent
+    path:'consultas-agendadas',
+    component: TelaAgendamentoComponent
+  },
+   {
+   path:'agendadar-consulta',
+    component: TelaAgendamentoComponent
   },
   {
-    path:'agendamento',
-    component: TelaAgendamentoComponent 
-  },
-  {
-    path:'prontuario',
+    path:'consultar-prontuario',
     component: ProntuarioComponent
   },
   {
-    path:'consultar_resultados',
-    component: HomeComponent 
+    path:'consultar-resultados',
+    component: HomeComponent
   }
 ];

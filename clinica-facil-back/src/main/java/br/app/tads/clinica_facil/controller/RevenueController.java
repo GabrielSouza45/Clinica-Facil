@@ -25,18 +25,21 @@ public class RevenueController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllRevenues() {
         return revenueService.getAll();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getRevenueById(@PathVariable Long id) {
         return revenueService.getById(id);
     }
 
     @GetMapping("/by-patient/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getByPatient(@PathVariable Long patientId) {
         if (patientId == null || patientId <= 0) {
             return responseBuilder.build("ID de paciente inválido.", HttpStatus.BAD_REQUEST);
@@ -46,6 +49,7 @@ public class RevenueController {
 
     @GetMapping("/by-doctor/{doctorId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getByDoctor(@PathVariable Long doctorId) {
         if (doctorId == null || doctorId <= 0) {
             return responseBuilder.build("ID de Médico inválido.", HttpStatus.BAD_REQUEST);
@@ -55,6 +59,7 @@ public class RevenueController {
 
     @GetMapping("/by-date")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getRevenueByDate(
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime dateTime) {
         return revenueService.getRevenueByDate(dateTime);
@@ -68,6 +73,7 @@ public class RevenueController {
 
     @PostMapping("/add/{medicalRecordId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<MedicalRecord> addRevenueToMedicalRecord(
             @PathVariable Long medicalRecordId, @RequestBody Revenue revenue) {
         try {

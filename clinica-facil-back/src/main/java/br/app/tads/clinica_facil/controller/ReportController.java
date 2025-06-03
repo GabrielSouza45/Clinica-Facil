@@ -34,12 +34,14 @@ public class ReportController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllReports() {
         return reportService.getAll();
     }
 
     @GetMapping("/by-patient/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getReportByPatient(@PathVariable Long patientId) {
         if (patientId == null) {
             return responseBuilder.build("É obrigatório informar um paciente para realizar uma busca!",
@@ -51,6 +53,7 @@ public class ReportController {
 
     @GetMapping("/by-date")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getReportAtDate(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date issueDate) {
         if (issueDate.after(new Date())) {
@@ -62,6 +65,7 @@ public class ReportController {
 
     @PutMapping("/edit/{id}")
     @PreAuthorize("hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<Report> updateReport(@PathVariable Long id, @RequestBody Report updatedReport) {
         Report report = reportService.updateReport(id, updatedReport);
         return ResponseEntity.ok(report);

@@ -22,18 +22,21 @@ public class PatientController {
 
     @GetMapping("/get-all-actives")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllPatientsActives() {
         return patientService.getAllActive();
     }
 
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllPatients() {
         return patientService.getAll();
     }
 
     @GetMapping("/get-name/{patientName}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getPatientsByName(@PathVariable String patientName) {
         if (patientName.isBlank())
             return responseBuilder.build("Nome não pode ser nulo!", HttpStatus.BAD_REQUEST);
@@ -44,6 +47,7 @@ public class PatientController {
 
     @GetMapping("/get-email/{patientEmail}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getPatientsByEmail(@PathVariable String patientEmail) {
         if (patientEmail.isBlank())
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
@@ -54,6 +58,7 @@ public class PatientController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> addPatients(@RequestBody Patient patient) {
         if (
                 patient.getName().isBlank()
@@ -70,6 +75,7 @@ public class PatientController {
 
     @PutMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> editPatients(@RequestBody Patient patient) {
         if (
                 patient.getName().isBlank()
@@ -86,6 +92,7 @@ public class PatientController {
 
     @PutMapping("/delete/{email}")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> deletePatients(@PathVariable String email) {
         if (email.isEmpty()) {
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);

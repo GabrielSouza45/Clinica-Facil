@@ -22,18 +22,21 @@ public class DoctorController {
 
     @GetMapping("/get-all-actives")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllDoctorsActives() {
         return doctorService.getAllActive();
     }
 
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllDoctors() {
         return doctorService.getAll();
     }
 
     @GetMapping("/get-name/{doctorName}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getDoctorsByName(@PathVariable String doctorName) {
         if (doctorName.isBlank())
             return responseBuilder.build("Nome não pode ser nulo!", HttpStatus.BAD_REQUEST);
@@ -44,6 +47,7 @@ public class DoctorController {
 
     @GetMapping("/get-email/{doctorEmail}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getDoctorsByEmail(@PathVariable String doctorEmail) {
         if (doctorEmail.isBlank())
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
@@ -54,6 +58,7 @@ public class DoctorController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> addDoctors(@RequestBody Doctor doctor) {
         if (
                 doctor.getName().isBlank()
@@ -70,6 +75,7 @@ public class DoctorController {
 
     @PutMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> editDoctors(@RequestBody Doctor doctor) {
         if (
                 doctor.getName().isBlank()
@@ -86,6 +92,7 @@ public class DoctorController {
 
     @PutMapping("/delete")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> deleteDoctors(@RequestBody Doctor doctor) {
         if (doctor.getEmail().isBlank()) {
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);

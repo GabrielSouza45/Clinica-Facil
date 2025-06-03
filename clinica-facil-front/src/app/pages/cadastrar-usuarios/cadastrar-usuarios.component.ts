@@ -1,3 +1,6 @@
+import { UsuariosService } from './../../services/usersService/usuarios.service';
+import { ReportService } from './../../services/reportService/report.service';
+import { Usuario } from './../../model/Usuario';
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -8,6 +11,10 @@ import { InputPrimarioComponent } from '../../components/input-primario/input-pr
 import { ModalComponent } from '../../components/modal/modal.component';
 import { PatientService } from '../../services/patientService/patient.service';
 import { DoctorService } from '../../services/doctorService/doctor.service';
+import { LayoutPrincipalComponent } from "../layout-principal/layout-principal.component";
+import { TablePaginationComponent } from "../../components/back-office/table-pagination/table-pagination.component";
+import { log } from 'console';
+import { UserTable } from '../../model/UserTable';
 
 @Component({
   selector: 'app-cadastrar-usuarios',
@@ -17,34 +24,88 @@ import { DoctorService } from '../../services/doctorService/doctor.service';
     ReactiveFormsModule,
     InputPrimarioComponent,
     ModalComponent,
+    LayoutPrincipalComponent,
+    TablePaginationComponent
   ],
   templateUrl: './cadastrar-usuarios.component.html',
   styleUrl: './cadastrar-usuarios.component.css',
 })
 export class CadastrarUsuariosComponent {
-[x: string]: any;
+  [x: string]: any;
   formCadastroUsuario!: FormGroup;
   modalAberto: boolean = false;
   clickCadastro: boolean = true;
   grupoSelecionado: Group = Group.PATIENT;
   Group = Group;
 
+  usuarios: UserTable[] = [];
+  buscarForm!: FormGroup;
+
   constructor(
     private toastr: ToastrService,
+    private usuariosService: UsuariosService,
     private patientService: PatientService,
     private doctorService: DoctorService
   ) {
     this.inicializarFormulario();
+    this.pesquisar();
+  }
+
+
+  // PESQUISAR
+  pesquisar() {
+    const nome = this.buscarForm.value.nome || null;
+    if (nome) {
+
+      this.usuariosService.getByName(nome).subscribe((response: UserTable[]) => {
+        this.usuarios = response.map(user => ({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          birth: user.birth,
+          group: (user.cpf ? "Paciente" : "Médico"),
+          cpf: user.cpf,
+          crm: user.crm,
+          status: user.status
+        }));
+      });
+
+      this.buscarForm.reset();
+
+    } else {
+
+      this.usuariosService.listarTodosAtivos().subscribe((response: UserTable[]) => {
+        console.log(response);
+
+        this.usuarios = response.map(user => ({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          birth: user.birth,
+          group: (user.cpf ? "Paciente" : "Médico"),
+          cpf: user.cpf,
+          crm: user.crm,
+          status: user.status
+        }));
+
+      });
+
+    }
   }
 
   inicializarFormulario() {
     this.formCadastroUsuario = new FormGroup({
-      nome: new FormControl('', [Validators.required]),
+      name: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      senha: new FormControl('', [Validators.required]),
+      birth: new FormControl('', [Validators.required]),
+      password: new FormControl('', [Validators.required]),
       confirmarSenha: new FormControl('', [Validators.required]),
       cpf: new FormControl(''),
       crm: new FormControl('')
+    });
+
+    this.buscarForm = new FormGroup({
+      nome: new FormControl('', [Validators.required])
     });
 
     this.atualizarValidadores();
@@ -86,7 +147,7 @@ export class CadastrarUsuariosComponent {
     }
 
     if (
-      this.formCadastroUsuario.value.senha !==
+      this.formCadastroUsuario.value.password !==
       this.formCadastroUsuario.value.confirmarSenha
     ) {
       this.toastr.warning('As senhas não coincidem!');
@@ -97,9 +158,10 @@ export class CadastrarUsuariosComponent {
 
     if (this.grupoSelecionado === Group.PATIENT) {
       const patientData = {
-        nome: dados.nome,
+        name: dados.name,
         email: dados.email,
-        senha: dados.senha,
+        birth: dados.birth,
+        password: dados.password,
         cpf: dados.cpf,
       };
 
@@ -109,9 +171,10 @@ export class CadastrarUsuariosComponent {
       });
     } else if (this.grupoSelecionado === Group.Doctor) {
       const doctorData = {
-        nome: dados.nome,
+        name: dados.name,
         email: dados.email,
-        senha: dados.senha,
+        birth: dados.birth,
+        password: dados.password,
         crm: dados.crm,
       };
 
@@ -125,6 +188,7 @@ export class CadastrarUsuariosComponent {
   private sucessoCadastro(tipo: string) {
     this.toastr.success(`${tipo} cadastrado com sucesso!`);
     this.fecharModal();
+    this.pesquisar();
   }
 
   private erroCadastro() {

@@ -24,18 +24,21 @@ public class ExamController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllExams() {
         return examService.getAllExams();
     }
 
     @GetMapping("/by-patient/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getExamsByPatient(@PathVariable Long patientId) {
         return ResponseEntity.ok(examService.getExamsByPatient(patientId));
     }
 
     @GetMapping("/by-date")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getExamsByDate(
             @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") LocalDateTime dateTime) {
         return examService.getExamsByDate(dateTime);
@@ -43,6 +46,7 @@ public class ExamController {
 
     @PutMapping("/edit/{examId}")
     @PreAuthorize("hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<Exam> updateExam(@PathVariable Long examId, @RequestBody Exam updatedExam) {
         try {
             Exam exam = examService.updateExam(examId, updatedExam);
@@ -54,6 +58,7 @@ public class ExamController {
 
     @PostMapping("/add/{medicalRecordId}")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<MedicalRecord> addExamToMedicalRecord(
             @PathVariable Long medicalRecordId, @RequestBody Exam exam) {
         try {

@@ -17,6 +17,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/medical-records")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class MedicalRecordController {
 
     @Autowired
@@ -31,6 +32,7 @@ public class MedicalRecordController {
 
     @GetMapping("/by-patient/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<List<MedicalRecord>> getMedicalRecordsByPatient(@PathVariable Long patientId) {
         Optional<Patient> optionalPatient = patientService.getPatientById(patientId);
         if (optionalPatient.isPresent()) {
@@ -44,6 +46,7 @@ public class MedicalRecordController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<MedicalRecord> getMedicalRecordById(@PathVariable Long id) {
         Optional<MedicalRecord> medicalRecordOpt = medicalRecordService.getMedicalRecordById(id);
         return medicalRecordOpt.map(ResponseEntity::ok)
@@ -53,6 +56,7 @@ public class MedicalRecordController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<Void> deleteMedicalRecord(@PathVariable Long id) {
         try {
             medicalRecordService.deleteMedicalRecord(id);

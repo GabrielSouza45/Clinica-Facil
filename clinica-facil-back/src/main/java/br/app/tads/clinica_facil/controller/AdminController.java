@@ -22,18 +22,21 @@ public class AdminController {
 
     @GetMapping("/get-all-actives")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllAdminsActives() {
         return adminService.getAllActive();
     }
 
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllAdmins() {
         return adminService.getAll();
     }
 
     @GetMapping("/get-name")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAdminsByName(@RequestBody Admin admin) {
         if (admin.getName().isBlank())
             return responseBuilder.build("Nome não pode ser nulo!", HttpStatus.BAD_REQUEST);
@@ -44,6 +47,7 @@ public class AdminController {
 
     @GetMapping("/get-email")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAdminsByEmail(@RequestBody Admin admin) {
         if (admin.getEmail().isBlank())
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);
@@ -54,6 +58,7 @@ public class AdminController {
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> addAdmins(@RequestBody Admin admin) {
         if (
                 admin.getName().isBlank()
@@ -68,6 +73,7 @@ public class AdminController {
 
     @PutMapping("/edit")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> editAdmins(@RequestBody Admin admin) {
         if (
                 admin.getName().isBlank()
@@ -82,6 +88,7 @@ public class AdminController {
 
     @PutMapping("/delete")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> deleteAdmins(@RequestBody Admin admin) {
         if (admin.getEmail().isBlank()) {
             return responseBuilder.build("Email não pode ser nulo!", HttpStatus.BAD_REQUEST);

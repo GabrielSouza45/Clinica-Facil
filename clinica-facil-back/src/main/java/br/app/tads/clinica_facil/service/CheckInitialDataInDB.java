@@ -12,6 +12,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -61,7 +62,7 @@ public class CheckInitialDataInDB implements CommandLineRunner {
                 STANDARD_DOCTOR_MAIL,
                 new BCryptPasswordEncoder().encode("12345"),
                 "John Doe Doctor",
-                calendar.getTime(),
+                LocalDate.now(),
                 "123456789",
                 Status.ACTIVE
         );
@@ -76,7 +77,7 @@ public class CheckInitialDataInDB implements CommandLineRunner {
                 STANDARD_PATIENT_MAIL,
                 new BCryptPasswordEncoder().encode("12345"),
                 "John Doe Patient",
-                calendar.getTime(),
+                LocalDate.now(),
                 "12674811021",
                 Status.ACTIVE
         );

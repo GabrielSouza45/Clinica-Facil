@@ -20,4 +20,8 @@ export class UsuariosService extends CrudService<Usuario> {
     return this.doGet('/get-all-actives');
   }
 
+  getByName(name: string) {
+    return this.doGet('/get-by-name/' + name);
+  }
+
 }

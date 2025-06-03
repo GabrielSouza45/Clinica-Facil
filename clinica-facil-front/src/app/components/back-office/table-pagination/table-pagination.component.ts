@@ -33,9 +33,5 @@ export class TablePaginationComponent {
   @Output() pageChangeEvent = new EventEmitter<number>();
   page?: number = 1;
 
-  pageChanged(event: PageChangedEvent): void {
 
-    this.page = event.page;
-    this.pageChangeEvent.emit(this.page);
-  }
 }

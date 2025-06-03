@@ -19,4 +19,6 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     List<Patient> findByNameAndStatus(String name, Status status);
 
     List<Patient> findByNameContainingAndStatus(String name, Status status);
+
+    List<Patient> findByNameContaining(String name);
 }

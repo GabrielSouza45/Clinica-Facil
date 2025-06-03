@@ -1,90 +1,129 @@
-<div class="layout">
- <!-- Menu lateral fixo -->
- <aside class="menu-lateral">
- <div class="logo">Clinica Fácil</div>
-
- <div
- class="opcao-menu"
- [class.selecionado]="grupoSelecionado === Group.PATIENT"
- (click)="abrirModalComGrupo(Group.PATIENT)">
- Cadastrar Paciente
- </div>
-
- <div
- class="opcao-menu"
- [class.selecionado]="grupoSelecionado === Group.Doctor"
- (click)="abrirModalComGrupo(Group.Doctor)">
- Cadastrar Médico
- </div>
-
- <div class="usuario-logado" (click)="Group.Doctor">
- <P>USUARIO</P>
- <span class="logout">Sair</span>
- </div>
- </aside>
-
- <!-- Conteúdo principal -->
- <main class="conteudo">
- <app-modal
- *ngIf="modalAberto"
- class="modal-cadastro"
- (fecharModal)="fecharModal()"
- (submit)="cadastrar()"
- [tituloModal]="'Cadastro - ' + (grupoSelecionado === Group.PATIENT ? 'Paciente' : 'Médico')"
- textoBotao="Cadastrar">
- 
- <form [formGroup]="formCadastroUsuario" class="form-cadastro">
- <form [formGroup]="formCadastroUsuario" class="form-cadastro">
-        <form [formGroup]="formCadastroUsuario" class="form-cadastro p-3">
-      <app-input-primario
-        class="input-padrao"
-        [addLabel]="true"
-        label="Nome:"
-        formControlName="nome"
-      ></app-input-primario>
-
-      <app-input-primario
-        class="input-padrao"
-        [addLabel]="true"
-        label="Email:"
-        formControlName="email"
-      ></app-input-primario>
-
-      <app-input-primario
-        *ngIf="grupoSelecionado === Group.PATIENT"
-        class="input-padrao"
-        [addLabel]="true"
-        label="CPF:"
-        formControlName="cpf"
-      ></app-input-primario>
-
-      <app-input-primario
-        *ngIf="grupoSelecionado === Group.Doctor"
-        class="input-padrao"
-        [addLabel]="true"
-        label="CRM:"
-        formControlName="crm"
-      ></app-input-primario>
-
-      <app-input-primario
-        class="input-padrao"
-        [addLabel]="true"
-        label="Senha:"
-        type="password"
-        formControlName="senha"
-      ></app-input-primario>
-
-      <app-input-primario
-        class="input-padrao"
-        [addLabel]="true"
-        label="Confirmar Senha:"
-        type="password"
-        formControlName="confirmarSenha"
-      ></app-input-primario>
+<app-layout-principal>
+  <div class="conteudo-principal">
+    <form superior [formGroup]="buscarForm" class="form-buscar">
+      <div class="cabecalho">
+        <div class="divisor"></div>
+        <!-- Input -->
+        <div class="input">
+          <app-input-primario
+            formControlName="nome"
+            inputName="nome"
+            type="text"
+            placeHolder="Nome do Usuario"
+          >
+            <i class="bi bi-search" (click)="pesquisar()"></i>
+          </app-input-primario>
+        </div>
+        <div class="divisor"></div>
+      </div>
+      <hr />
     </form>
-      </form>
- </form>
- </app-modal>
- </main>
-</div>
 
+    <div class="botoes d-flex w-100">
+      <div
+        class="botao-cadastrar col-4 gap-3"
+        [class.selecionado]="grupoSelecionado === Group.PATIENT"
+        (click)="abrirModalComGrupo(Group.PATIENT)"
+      >
+        Adicionar Novo Paciente
+        <i class="bi bi-plus-circle-fill button"></i>
+      </div>
+
+      <div
+        class="botao-cadastrar col-4 gap-3"
+        [class.selecionado]="grupoSelecionado === Group.Doctor"
+        (click)="abrirModalComGrupo(Group.Doctor)"
+      >
+        Adicionar Novo Médico
+        <i class="bi bi-plus-circle-fill button"></i>
+      </div>
+    </div>
+
+    <div class="inferior" inferior>
+      <app-table-pagination [dados]="usuarios"> </app-table-pagination>
+    </div>
+
+    <div class="layout-modal">
+      <!-- Conteúdo Modal -->
+      <main class="conteudo-modal">
+        <app-modal
+          *ngIf="modalAberto"
+          class="modal-cadastro"
+          (fecharModal)="fecharModal()"
+          (submit)="cadastrar()"
+          [tituloModal]="
+            'Cadastro - ' +
+            (grupoSelecionado === Group.PATIENT ? 'Paciente' : 'Médico')
+          "
+          textoBotao="Cadastrar"
+        >
+          <form
+            [formGroup]="formCadastroUsuario"
+            class="form-cadastro-user p-3"
+          >
+            <app-input-primario
+              class="input-padrao"
+              [addLabel]="true"
+              label="Nome:"
+              formControlName="name"
+              inputName="name"
+            ></app-input-primario>
+
+            <app-input-primario
+              class="input-padrao"
+              [addLabel]="true"
+              label="Email:"
+              formControlName="email"
+              inputName="email"
+            ></app-input-primario>
+
+            <app-input-primario
+              class="input-padrao"
+              [addLabel]="true"
+              label="Data de Nascimento:"
+              formControlName="birth"
+              inputName="birth"
+              type="date"
+            ></app-input-primario>
+
+            <app-input-primario
+              *ngIf="grupoSelecionado === Group.PATIENT"
+              class="input-padrao"
+              [addLabel]="true"
+              label="CPF:"
+              formControlName="cpf"
+              inputName="cpf"
+            ></app-input-primario>
+
+            <app-input-primario
+              *ngIf="grupoSelecionado === Group.Doctor"
+              class="input-padrao"
+              [addLabel]="true"
+              label="CRM:"
+              formControlName="crm"
+              inputName="crm"
+            ></app-input-primario>
+
+            <app-input-primario
+              class="input-padrao"
+              [addLabel]="true"
+              label="Senha:"
+              type="password"
+              formControlName="password"
+              inputName="password"
+            ></app-input-primario>
+
+            <app-input-primario
+              class="input-padrao"
+              [addLabel]="true"
+              label="Confirmar Senha:"
+              type="password"
+              formControlName="confirmarSenha"
+              inputName="confirmarSenha"
+            ></app-input-primario>
+          </form>
+        </app-modal>
+      </main>
+    </div>
+  </div>
+</app-layout-principal>

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/agenda")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class AgendaController {
 
     @Autowired
@@ -20,24 +21,28 @@ public class AgendaController {
 
     @GetMapping("/get-all")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAllAgendas() {
         return agendaService.getAllAgendas();
     }
 
     @PostMapping("/by-doctor")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAgendasByDoctor(@RequestBody Doctor doctor) {
         return agendaService.getAgendasByDoctor(doctor);
     }
 
     @PostMapping("/available-by-doctor")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAvailableAgendasByDoctor(@RequestBody Doctor doctor) {
         return agendaService.getAvailableAgendasByDoctor(doctor);
     }
 
     @GetMapping("/by-date-range")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> getAgendasByDateRange(
             @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
@@ -47,18 +52,21 @@ public class AgendaController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> createAgenda(@RequestBody Agenda agenda) {
         return agendaService.createAgenda(agenda);
     }
 
     @PutMapping
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> updateAgenda(@RequestBody Agenda agenda) {
         return agendaService.updateAgenda(agenda);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     public ResponseEntity<?> deleteAgenda(@PathVariable Long id) {
         return agendaService.deleteAgenda(id);
     }
