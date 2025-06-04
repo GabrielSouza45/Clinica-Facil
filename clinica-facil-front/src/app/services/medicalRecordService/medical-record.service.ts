@@ -27,4 +27,12 @@ export class MedicalRecordService extends CrudService<MedicalRecord> {
   deleteMedicalRecord(id: number){
     return this.doDelete(`/${id}`);
   }
+
+  createMedicalRecordWithConsultation(patientId: number, consultation: any) {
+  return this.doPost(`/create/${patientId}`, consultation);
+}
+getAll() {
+  return this.doGet('');
+}
+
 }

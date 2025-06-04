@@ -1,5 +1,5 @@
-export enum StatusConsultation{
-  PENDING,
-  CANCELLED,
-  FINISHED
+export enum StatusConsultation {
+  PENDING = "PENDING",
+  FINISHED = "FINISHED",
+  CANCELLED = "CANCELLED"
 }

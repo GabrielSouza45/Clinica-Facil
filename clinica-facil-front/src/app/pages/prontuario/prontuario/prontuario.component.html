@@ -1,153 +1,121 @@
-<div class="container">
-  <h2 class="text-center my-4">Prontuários Médicos</h2>
-    
-  <!-- Formulário do Prontuário -->
-  <div class="card mb-4">
-    <div class="card-header">
-      {{ editando ? 'Editar Prontuário' : 'Novo Prontuário' }}
-    </div>
-    <div class="card-body">
-      <form [formGroup]="formProntuario" (ngSubmit)="salvarProntuario()">
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">Paciente</label>
-            <input type="text" class="form-control" formControlName="paciente">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Data da Consulta</label>
-            <input type="date" class="form-control" formControlName="dataConsulta">
-          </div>
-        </div>
+<app-layout-principal>
+  <div class="conteudo-principal">
 
-        <h4 class="mt-4">Itens do Prontuário</h4>
+    <!-- LISTA DE PRONTUÁRIOS -->
+    <h4>Prontuários Cadastrados</h4>
+    <div *ngIf="medicalRecords.length === 0" class="alert alert-info">Nenhum prontuário encontrado.</div>
 
-        <div formArrayName="itens" class="mb-3">
-          <div *ngFor="let item of itens.controls; let i = index" [formGroupName]="i" class="item-group mb-3 p-3 border rounded">
-            <div class="row">
-              <div class="col-md-4">
-                <label class="form-label">Realizado</label>
-                <input type="text" class="form-control" formControlName="realizado">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Causa</label>
-                <input type="text" class="form-control" formControlName="causa">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Procedimento</label>
-                <input type="text" class="form-control" formControlName="procedimento">
-              </div>
-              <div class="col-md-2 d-flex align-items-end">
-                <button type="button" class="btn btn-danger w-100" (click)="removerItem(i)">
-                  Remover
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-between">
-          <button type="button" class="btn btn-primary" (click)="adicionarItem()">
-            + Adicionar Item
-            </button>
-
-          
-          <div>
-            <button type="button" class="btn btn-secondary me-2" (click)="cancelarEdicao()" *ngIf="editando">
-              Cancelar
-            </button>
-            <button type="submit" class="btn btn-success">
-              {{ editando ? 'Atualizar' : 'Salvar' }}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Lista de Prontuários -->
-  <div class="card">
-    <div class="card-header">
-      Prontuários Cadastrados
-    </div>
-    <div class="card-body">
-      <div *ngIf="prontuarios.length === 0" class="alert alert-info">
-        Nenhum prontuário cadastrado.
+    <div *ngFor="let record of medicalRecords" class="card mb-3 p-3">
+      <div>
+        <strong>Paciente:</strong> {{ getPatientName(record.patient?.id) }}
+      </div>
+      <div>
+        <strong>Data da Consulta:</strong> {{ record.consultations?.[0]?.dateTime | date:'short' }}
+      </div>
+      <div>
+        <strong>Especialidade:</strong> {{ record.consultations?.[0]?.specialty }}
       </div>
 
-      <div *ngIf="prontuarios.length > 0">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Paciente</th>
-                <th>Data da Consulta</th>
-                <th>Itens</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let prontuario of prontuarios">
-                <td>{{ prontuario.paciente }}</td>
-                <td>{{ prontuario.dataConsulta | date:'dd/MM/yyyy' }}</td>
-                <td>{{ prontuario.itens.length }}</td>
-                <td>
-                  <button class="btn btn-sm btn-info me-2" (click)="visualizarProntuario(prontuario)">
-                    Visualizar
-                  </button>
-                  <button class="btn btn-sm btn-warning me-2" (click)="editarProntuario(prontuario)">
-                    Editar
-                  </button>
-                  <button class="btn btn-sm btn-danger" (click)="excluirProntuario(prontuario.id)">
-                    Excluir
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="mt-2 d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" (click)="visualizarProntuario(record)">Visualizar</button>
+        <button class="btn btn-outline-warning btn-sm" (click)="editarProntuario(record)">Editar</button>
+        <button class="btn btn-outline-danger btn-sm" (click)="excluirProntuario(record.id!)">Excluir</button>
       </div>
-    </div>
-  </div>
 
-  <!-- Modal de Visualização -->
-  <div *ngIf="prontuarioSelecionado" class="modal-backdrop show"></div>
-  <div *ngIf="prontuarioSelecionado" class="modal show d-block" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Prontuário de {{ prontuarioSelecionado.paciente }}</h5>
-          <button type="button" class="btn-close" (click)="prontuarioSelecionado = null"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <strong>Paciente:</strong> {{ prontuarioSelecionado.paciente }}
-          </div>
-          <div class="mb-3">
-            <strong>Data da Consulta:</strong> {{ prontuarioSelecionado.dataConsulta | date:'dd/MM/yyyy' }}
-          </div>
-          
-          <h5 class="mt-4">Itens do Prontuário</h5>
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Realizado</th>
-                <th>Causa</th>
-                <th>Procedimento</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of prontuarioSelecionado.itens">
-                <td>{{ item.realizado }}</td>
-                <td>{{ item.causa }}</td>
-                <td>{{ item.procedimento }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="prontuarioSelecionado = null">Fechar</button>
-        </div>
+      <div *ngIf="selectedMedicalRecord?.id === record.id && !editando" class="mt-3">
+        <h6>Consultas:</h6>
+        <ul>
+          <li *ngFor="let consult of record.consultations">
+            <strong>Data:</strong> {{ consult.dateTime | date:'short' }} |
+            <strong>Especialidade:</strong> {{ consult.specialty }} |
+            <strong>Status:</strong> <span [ngClass]="getStatusClass(consult.status)">{{ getStatusText(consult.status) }}</span> |
+            <strong>Relatório:</strong> {{ consult.report?.body }}
+          </li>
+        </ul>
       </div>
     </div>
+
+    <hr />
+
+    <!-- BOTÃO PARA CRIAR NOVO PRONTUÁRIO -->
+    <div class="mb-3">
+      <button class="btn btn-primary" (click)="novoProntuario">Novo Prontuário</button>
+    </div>
+
+    <!-- FORMULÁRIO DE PRONTUÁRIO -->
+    <form *ngIf="editando || criando" [formGroup]="formProntuario" (ngSubmit)="salvarProntuario()" class="form-prontuario p-3">
+
+      <h3>{{ editando ? 'Editar Prontuário' : 'Novo Prontuário' }}</h3>
+
+      <!-- Seleção do Paciente -->
+      <div class="mb-3">
+        <label for="patientId" class="form-label">Paciente:</label>
+        <select id="patientId" formControlName="patientId" class="form-select">
+          <option [value]="null" disabled>Selecione um paciente</option>
+          <option *ngFor="let p of patients" [value]="p.id">{{ p.name }}</option>
+        </select>
+      </div>
+
+      <!-- Data e Especialidade (campo padrão do prontuário, usado só no primeiro registro) -->
+      <div class="mb-3">
+        <label for="consultationDateTime" class="form-label">Data da Consulta:</label>
+        <input type="datetime-local" id="consultationDateTime" formControlName="consultationDateTime" class="form-control" />
+      </div>
+
+      <div class="mb-3">
+        <label for="specialty" class="form-label">Especialidade:</label>
+        <input type="text" id="specialty" formControlName="specialty" class="form-control" />
+      </div>
+
+      <!-- CONSULTAS (FormArray) -->
+      <div formArrayName="consultations" class="mb-3">
+        <h5>Consultas</h5>
+
+        <div
+          *ngFor="let consulta of consultations.controls; let i = index"
+          [formGroupName]="i"
+          class="card mb-2 p-3"
+        >
+          <label>Consulta {{ i + 1 }}</label>
+
+          <div class="mb-2">
+            <label class="form-label">Relatório (JSON):</label>
+            <textarea formControlName="report" class="form-control" rows="3"></textarea>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Especialidade:</label>
+            <input type="text" formControlName="specialty" class="form-control" />
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Status:</label>
+            <select formControlName="status" class="form-select">
+              <option [value]="StatusConsultation.PENDING">Pendente</option>
+              <option [value]="StatusConsultation.FINISHED">Finalizado</option>
+              <option [value]="StatusConsultation.CANCELLED">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label">Data e Hora:</label>
+            <input type="datetime-local" formControlName="dateTime" class="form-control" />
+          </div>
+
+          <button type="button" class="btn btn-danger btn-sm" (click)="removeConsultationItem(i)" *ngIf="consultations.length > 1">
+            Remover Consulta
+          </button>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-sm" (click)="addConsultationItem()">
+          Adicionar Consulta
+        </button>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">{{ editando ? 'Atualizar Prontuário' : 'Salvar Prontuário' }}</button>
+        <button type="button" class="btn btn-secondary" (click)="limparFormulario()">Cancelar</button>
+      </div>
+    </form>
   </div>
-</div>
+</app-layout-principal>

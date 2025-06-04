@@ -1,5 +1,6 @@
 package br.app.tads.clinica_facil.controller;
 
+import br.app.tads.clinica_facil.model.Consultation;
 import br.app.tads.clinica_facil.model.MedicalRecord;
 import br.app.tads.clinica_facil.model.Patient;
 import br.app.tads.clinica_facil.service.MedicalRecordService;
@@ -43,6 +44,37 @@ public class MedicalRecordController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
+    @PostMapping("/create/{patientId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    public ResponseEntity<MedicalRecord> createMedicalRecordAndAddConsultation(
+            @PathVariable Long patientId,
+            @RequestBody Consultation consultation) {
+
+        Optional<Patient> optionalPatient = patientService.getPatientById(patientId);
+
+        if (optionalPatient.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        try {
+            // Cria o prontuário
+            MedicalRecord medicalRecord = medicalRecordService.createMedicalRecord(optionalPatient.get());
+
+            // Adiciona a consulta
+            MedicalRecord updatedRecord = medicalRecordService.addConsultationToMedicalRecord(
+                    medicalRecord.getId(),
+                    consultation
+            );
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(updatedRecord);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // paciente já possui prontuário
+        }
+    }
+
+
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
