@@ -1,85 +1,117 @@
-import { Component, OnInit, Pipe } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { Component, NgModule, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray, FormGroupName, ReactiveFormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-
 import { MedicalRecord } from '../../../model/MedicalRecord';
-import { Consultation } from '../../../model/Consultation';
 import { Patient } from '../../../model/Patient';
 import { StatusConsultation } from '../../../model/enums/StatusConsultation';
-
 import { MedicalRecordService } from '../../../services/medicalRecordService/medical-record.service';
 import { PatientService } from '../../../services/patientService/patient.service';
-import { ConsultationService } from '../../../services/consultationService/consultation.service';
 import { CommonModule } from '@angular/common';
 import { LayoutPrincipalComponent } from "../../layout-principal/layout-principal.component";
 
+interface PrescriptionForm {
+  medication: string;
+  dosage: string;
+  instructions: string;
+}
+
+interface ExamForm {
+  name: string;
+  date: string;
+  results: string;
+}
+
 @Component({
   selector: 'app-prontuario',
+  standalone: true,
   imports: [
     CommonModule,
-    LayoutPrincipalComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    LayoutPrincipalComponent
 ],
   templateUrl: './prontuario.component.html',
   styleUrls: ['./prontuario.component.css']
 })
 export class ProntuarioComponent implements OnInit {
-novoProntuario() {
-throw new Error('Method not implemented.');
-}
   formProntuario!: FormGroup;
   medicalRecords: MedicalRecord[] = [];
   patients: Patient[] = [];
   selectedMedicalRecord: MedicalRecord | null = null;
   editando: boolean = false;
-  StatusConsultation = StatusConsultation;
-criando: any;
- 
+  criando: boolean = false;
+  visualizando: boolean = false;
+  StatusConsultation : any;
 
   constructor(
     private fb: FormBuilder,
     private toastr: ToastrService,
     private medicalRecordService: MedicalRecordService,
-    private patientService: PatientService,
-    private consultationService: ConsultationService
+    private patientService: PatientService
   ) {}
 
   ngOnInit(): void {
+    this.novoProntuario();
     this.initForm();
     this.loadPatients();
     this.loadMedicalRecords();
   }
 
-  private initForm(): void {
+  initForm(): void {
     this.formProntuario = this.fb.group({
-      id: [null],
       patientId: [null, Validators.required],
-      consultationDateTime: [null, Validators.required],
-      specialty: ['', Validators.required],
-      consultations: this.fb.array([])
+      consultation: this.fb.group({
+        dateTime: ['', Validators.required],
+        specialty: ['', Validators.required],
+        report: ['', Validators.required],
+        status: [StatusConsultation.PENDING, Validators.required]
+      }),
+      exams: this.fb.array([this.createExamGroup()]),
+      prescriptions: this.fb.array([this.createPrescriptionGroup()])
     });
-
-    this.addConsultationItem();
   }
 
-  get consultations(): FormArray {
-    return this.formProntuario.get('consultations') as FormArray;
-  }
-
-  addConsultationItem(): void {
-    // Agora o form da consulta tem só o report como string JSON, specialty, status e dateTime
-    const consultationGroup = this.fb.group({
-      report: ['', Validators.required],  // report como JSON string
-      specialty: ['', Validators.required],
-      status: [StatusConsultation.PENDING, Validators.required],
-      dateTime: [null, Validators.required]
+  createExamGroup(): FormGroup {
+    return this.fb.group({
+      name: ['', Validators.required],
+      date: ['', Validators.required],
+      results: ['', Validators.required]
     });
-
-    this.consultations.push(consultationGroup);
   }
 
-  removeConsultationItem(index: number): void {
-    this.consultations.removeAt(index);
+  createPrescriptionGroup(): FormGroup {
+    return this.fb.group({
+      medication: ['', Validators.required],
+      dosage: ['', Validators.required],
+      instructions: ['', Validators.required]
+    });
+  }
+
+  get exams(): FormArray {
+    return this.formProntuario.get('exams') as FormArray;
+  }
+
+  get prescriptions(): FormArray {
+    return this.formProntuario.get('prescriptions') as FormArray;
+  }
+
+  addExamItem(): void {
+    this.exams.push(this.createExamGroup());
+  }
+
+  removeExamItem(index: number): void {
+    if (this.exams.length > 1) {
+      this.exams.removeAt(index);
+    }
+  }
+
+  addPrescriptionItem(): void {
+    this.prescriptions.push(this.createPrescriptionGroup());
+  }
+
+  removePrescriptionItem(index: number): void {
+    if (this.prescriptions.length > 1) {
+      this.prescriptions.removeAt(index);
+    }
   }
 
   loadPatients(): void {
@@ -98,35 +130,65 @@ criando: any;
 
   visualizarProntuario(record: MedicalRecord): void {
     this.selectedMedicalRecord = record;
+    this.visualizando = true;
     this.editando = false;
+    this.criando = false;
+  }
+
+  novoProntuario(): void {
+    this.selectedMedicalRecord = null;
+    this.visualizando = false;
+    this.editando = false;
+    this.criando = true;
+    this.initForm();
   }
 
   editarProntuario(record: MedicalRecord): void {
     this.selectedMedicalRecord = record;
+    this.visualizando = false;
     this.editando = true;
+    this.criando = false;
 
-    this.formProntuario.reset();
+    // Limpa os arrays existentes
+    while (this.exams.length) this.exams.removeAt(0);
+    while (this.prescriptions.length) this.prescriptions.removeAt(0);
 
-    while(this.consultations.length) {
-      this.consultations.removeAt(0);
-    }
-
+    // Preenche o formulário com os dados do prontuário
+    const primeiraConsulta = record.consultations?.[0];
     this.formProntuario.patchValue({
-      id: record.id,
       patientId: record.patient?.id || null,
-      consultationDateTime: record.consultations?.[0]?.dateTime || null,
-      specialty: record.consultations?.[0]?.specialty || ''
+      consultation: {
+        dateTime: primeiraConsulta?.dateTime || '',
+        specialty: primeiraConsulta?.specialty || '',
+        report: primeiraConsulta?.report?.body || '',
+        status: primeiraConsulta?.status || StatusConsultation.PENDING
+      }
     });
 
-    if (record.consultations) {
-      record.consultations.forEach(consult => {
-        this.consultations.push(this.fb.group({
-          report: consult.report?.body || '',
-          specialty: consult.specialty || '',
-          status: consult.status || StatusConsultation.PENDING,
-          dateTime: consult.dateTime || null
+    // Adiciona exames
+    if (record.exams && record.exams.length > 0) {
+      record.exams.forEach(exam => {
+        this.exams.push(this.fb.group({
+          name: exam.name || '',
+          date: exam.date || '',
+          results: exam.results || ''
         }));
       });
+    } else {
+      this.addExamItem();
+    }
+
+    // Adiciona prescrições
+    if (record.revenues && record.revenues.length > 0) {
+      record.revenues.forEach(revenue => {
+        this.prescriptions.push(this.fb.group({
+          medication: revenue.medications || '',
+          dosage: revenue.dosage || '',
+          instructions: revenue.recommendations || ''
+        }));
+      });
+    } else {
+      this.addPrescriptionItem();
     }
   }
 
@@ -139,12 +201,12 @@ criando: any;
     const formValue = this.formProntuario.value;
     const patient = this.patients.find(p => p.id === formValue.patientId);
 
-    if (!patient) {
+    if (!patient || !patient.id) {
       this.toastr.error('Paciente inválido ou não encontrado');
       return;
     }
 
-    if (this.editando && formValue.id) {
+    if (this.editando && this.selectedMedicalRecord?.id) {
       this.atualizarProntuario(formValue, patient);
     } else {
       this.criarNovoProntuario(formValue, patient);
@@ -152,85 +214,87 @@ criando: any;
   }
 
   private atualizarProntuario(formValue: any, patient: Patient): void {
-    if (!this.selectedMedicalRecord) return;
+    if (!this.selectedMedicalRecord?.id) return;
 
-    const consultasAtualizadas: Consultation[] = this.consultations.controls.map((ctrl, idx) => {
-      const val = ctrl.value;
-      return {
-        id: this.selectedMedicalRecord?.consultations?.[idx]?.id,
-        dateTime: val.dateTime,
-        patientId: patient.id,
-        specialty: val.specialty,
-        status: val.status
-      };
-    });
+    const updatedData = {
+      patientId: patient.id,
+      consultation: {
+        id: this.selectedMedicalRecord.consultations?.[0]?.id, // Mantém o ID se existir
+        dateTime: formValue.consultation.dateTime,
+        specialty: formValue.consultation.specialty,
+        status: formValue.consultation.status,
+        report: {
+          body: formValue.consultation.report,
+          type: 'Consulta'
+        }
+      },
+      exams: this.exams.value,
+      revenues: this.prescriptions.value.map((p: any) => ({
+        medications: p.medication,
+        dosage: p.dosage,
+        recommendations: p.instructions,
+        dateTime: new Date().toISOString()
+      }))
+    };
 
-    // Atualizar a primeira consulta para simplificar
-    this.consultationService.editConsultation(this.selectedMedicalRecord.id!, consultasAtualizadas[0]).subscribe({
+    this.medicalRecordService.updateMedicalRecordWithConsultation(
+      this.selectedMedicalRecord.id, // Usa o ID do registro médico
+      updatedData
+    ).subscribe({
       next: () => {
         this.toastr.success('Prontuário atualizado com sucesso!');
         this.loadMedicalRecords();
         this.limparFormulario();
       },
-      error: () => {
-        this.toastr.error('Erro ao atualizar prontuário');
-      }
+      error: () => this.toastr.error('Erro ao atualizar prontuário')
     });
-  }
+}
 
-  private criarNovoProntuario(formValue: any, patient: Patient): void {
-    if (!patient.id) {
-      this.toastr.error('ID do paciente indefinido');
-      return;
+private criarNovoProntuario(formValue: any, patient: Patient): void {
+    // Verificação explícita do patient.id
+    if (patient?.id === undefined) {
+        this.toastr.error('ID do paciente não disponível');
+        return;
     }
 
-    const consultaInicial = this.consultations.at(0)?.value;
-
-    if (!consultaInicial) {
-      this.toastr.error('Consulta inicial inválida');
-      return;
-    }
-
-    const novaConsulta: Consultation = {
-      dateTime: consultaInicial.dateTime,
-      patientId: patient.id,
-      specialty: consultaInicial.specialty,
-      report: {
-        body: consultaInicial.report,
-        type: 'Consulta Inicial',
-        url: '',
-        toJSON: function () {
-          throw new Error('Function not implemented.');
-        }
-      },
-      status: consultaInicial.status
+    const consultationData = {
+        patientId: patient.id, // Agora garantido que não é undefined
+        consultation: {
+            dateTime: formValue.consultation.dateTime,
+            specialty: formValue.consultation.specialty,
+            status: formValue.consultation.status,
+            report: {
+                body: formValue.consultation.report,
+                type: 'Consulta'
+            }
+        },
+        exams: this.exams.value,
+        revenues: this.prescriptions.value.map((p: any) => ({
+            medications: p.medication,
+            dosage: p.dosage,
+            recommendations: p.instructions,
+            dateTime: new Date().toISOString()
+        }))
     };
 
-    this.medicalRecordService.createMedicalRecordWithConsultation(patient.id, novaConsulta).subscribe({
-      next: (createdRecord: any) => {
-        if (this.consultations.length > 1) {
-          const consultasAdicionais = this.consultations.controls.slice(1).map(ctrl => {
-            const val = ctrl.value;
-            return {
-              dateTime: val.dateTime,
-              patientId: patient.id!,
-              specialty: val.specialty,
-              report: {
-                body: val.report,
-                type: 'Consulta Adicional',
-                url: ''
-              },
-              status: val.status
-            };
-          });
-
-          consultasAdicionais.forEach(consulta => {
-            this.consultationService.createConsultation(createdRecord.id, consulta.report.body).subscribe({
-              error: () => this.toastr.error('Erro ao adicionar consulta adicional')
-            });
-          });
+    this.medicalRecordService.createMedicalRecordWithConsultation(
+        patient.id, // TypeScript agora sabe que é number
+        consultationData
+    ).subscribe({
+        next: () => {
+            this.toastr.success('Prontuário criado com sucesso!');
+            this.loadMedicalRecords();
+            this.limparFormulario();
+        },
+        error: () => {
+            this.toastr.error('Erro ao criar prontuário');
         }
-
+    });
+    this.medicalRecordService.createMedicalRecordWithConsultation(
+      patient?.id,
+      consultationData
+    ).subscribe({
+      next: () => {
         this.toastr.success('Prontuário criado com sucesso!');
         this.loadMedicalRecords();
         this.limparFormulario();
@@ -239,8 +303,7 @@ criando: any;
         this.toastr.error('Erro ao criar prontuário');
       }
     });
-  }
-
+}
   excluirProntuario(id: number): void {
     if (!confirm('Tem certeza que deseja excluir este prontuário?')) return;
 
@@ -258,20 +321,18 @@ criando: any;
   }
 
   limparFormulario(): void {
-    this.formProntuario.reset();
-    while (this.consultations.length) {
-      this.consultations.removeAt(0);
-    }
-    this.addConsultationItem();
     this.selectedMedicalRecord = null;
+    this.visualizando = false;
     this.editando = false;
+    this.criando = false;
+    this.initForm();
   }
 
   getPatientName(patientId?: number): string {
-  if (patientId === undefined) return 'Paciente desconhecido';
-  const patient = this.patients.find(p => p.id === patientId);
-  return patient ? patient.name || 'Paciente' : 'Paciente desconhecido';
-}
+    if (patientId === undefined) return 'Paciente desconhecido';
+    const patient = this.patients.find(p => p.id === patientId);
+    return patient ? patient.name || 'Paciente' : 'Paciente desconhecido';
+  }
 
   getStatusClass(status?: StatusConsultation): string {
     switch (status) {
@@ -283,6 +344,7 @@ criando: any;
   }
 
   getStatusText(status?: StatusConsultation): string {
-    return StatusConsultation[status as keyof typeof StatusConsultation];
+    if (status === undefined) return 'Desconhecido';
+    return StatusConsultation[status] || 'Desconhecido';
   }
 }

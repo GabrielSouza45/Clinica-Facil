@@ -1,12 +1,11 @@
 package br.app.tads.clinica_facil.controller;
 
-import br.app.tads.clinica_facil.model.Consultation;
-import br.app.tads.clinica_facil.model.MedicalRecord;
-import br.app.tads.clinica_facil.model.Patient;
+import br.app.tads.clinica_facil.model.*;
 import br.app.tads.clinica_facil.service.MedicalRecordService;
 import br.app.tads.clinica_facil.service.PatientService;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +44,34 @@ public class MedicalRecordController {
         }
     }
 
+    @PostMapping("/{medicalRecordId}/add-exam")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    public ResponseEntity<MedicalRecord> addExamToMedicalRecord(
+            @PathVariable Long medicalRecordId,
+            @RequestBody Exam exam) {
+        try {
+            MedicalRecord updatedRecord = medicalRecordService.addExamToMedicalRecord(medicalRecordId, exam);
+            return ResponseEntity.ok(updatedRecord);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    public ResponseEntity<MedicalRecord> updateMedicalRecord(
+            @PathVariable Long id,
+            @RequestBody MedicalRecord updatedRecord) {
+        try {
+            MedicalRecord record = medicalRecordService.updateMedicalRecord(id, updatedRecord);
+            return ResponseEntity.ok(record);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @PostMapping("/create/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
     @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -74,7 +101,18 @@ public class MedicalRecordController {
         }
     }
 
-
+    @PostMapping("/{medicalRecordId}/add-revenue")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
+    public ResponseEntity<MedicalRecord> addRevenueToMedicalRecord(
+            @PathVariable Long medicalRecordId,
+            @RequestBody Revenue revenue) {
+        try {
+            MedicalRecord updatedRecord = medicalRecordService.addRevenueToMedicalRecord(medicalRecordId, revenue);
+            return ResponseEntity.ok(updatedRecord);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")

@@ -9,4 +9,5 @@ export class Exam{
   results?: string;
   patient?: Patient;
   medicalRecord?: MedicalRecord;
+  date: string;
 }
