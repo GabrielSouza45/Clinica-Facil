@@ -1,13 +1,9 @@
 package br.app.tads.clinica_facil.service;
 
 import br.app.tads.clinica_facil.infra.responseBuilder.ResponseBuilder;
-import br.app.tads.clinica_facil.model.Consultation;
-import br.app.tads.clinica_facil.model.MedicalRecord;
-import br.app.tads.clinica_facil.model.Report;
+import br.app.tads.clinica_facil.model.*;
 import br.app.tads.clinica_facil.model.enums.StatusConsultation;
-import br.app.tads.clinica_facil.repository.ConsultationRepository;
-import br.app.tads.clinica_facil.repository.MedicalRecordRepository;
-import br.app.tads.clinica_facil.repository.ReportRepository;
+import br.app.tads.clinica_facil.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,19 +20,28 @@ public class ConsultationService {
 
     @Autowired
     private ConsultationRepository consultationRepository;
-
     @Autowired
     private ResponseBuilder responseBuilder;
-
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
-
     @Autowired
     private ReportRepository reportRepository;
+    @Autowired
+    private PatientRepository patientRepository;
+    @Autowired
+    private DoctorRepository doctorRepository;
+
+
 
     //Método para buscar Todas as Consultas
     public ResponseEntity<?> getAllConsultations() {
         List<Consultation> list = consultationRepository.findAll();
+        list.forEach(consulta -> {
+            Patient patient = patientRepository.findById(consulta.getPatientId()).orElse(null);
+            consulta.setPatient(patient);
+            Doctor doctor = doctorRepository.findById(consulta.getDoctorId()).orElse(null);
+            consulta.setDoctor(doctor);
+        });
         return ResponseEntity.ok(list);
     }
 
@@ -190,7 +195,7 @@ public class ConsultationService {
     
 
     //Método para Agendamento de Consultas
-    public ResponseEntity<?> createConsultation(Consultation consultation, Long medicalRecordId) {
+    public ResponseEntity<?>  createConsultation(Consultation consultation) {
         if (consultation.getDateTime().isBefore(LocalDateTime.now())) {
             return responseBuilder.build("A consulta deve ser agendada para uma data no futuro.",
                     HttpStatus.BAD_REQUEST);
@@ -200,20 +205,18 @@ public class ConsultationService {
             return responseBuilder.build("A especialidade deve ser informada.", HttpStatus.BAD_REQUEST);
         }
 
-        if (consultation.getPatientId() == null || consultation.getDoctorId() == null) {
-            return responseBuilder.build("Paciente e médico devem ser informados.", HttpStatus.BAD_REQUEST);
+        Optional<Patient> patient = patientRepository.findById(consultation.getPatientId());
+        if (patient.isEmpty()) {
+            return responseBuilder.build("Paciente não localizado.", HttpStatus.NOT_FOUND);
         }
 
-        if (medicalRecordId == null) {
-            return responseBuilder.build("O ID do prontuário deve ser informado.", HttpStatus.BAD_REQUEST);
+        MedicalRecord medicalRecord = medicalRecordRepository.findByPatient(patient.get());
+
+        if (medicalRecord == null) {
+            return responseBuilder.build("Prontuario do paciente não encontrado.", HttpStatus.BAD_REQUEST);
         }
 
-        Optional<MedicalRecord> medicalRecordOpt = medicalRecordRepository.findById(medicalRecordId);
-        if (!medicalRecordOpt.isPresent()) {
-            return responseBuilder.build("Prontuário não encontrado.", HttpStatus.NOT_FOUND);
-        }
-
-        consultation.setMedicalRecord(medicalRecordOpt.get());
+        consultation.setMedicalRecord(medicalRecord);
 
         consultation.setStatus(StatusConsultation.PENDING);
 

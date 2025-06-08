@@ -33,11 +33,11 @@ public class MedicalRecordController {
     @GetMapping("/by-patient/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('PATIENT') or hasRole('DOCTOR')")
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public ResponseEntity<List<MedicalRecord>> getMedicalRecordsByPatient(@PathVariable Long patientId) {
+    public ResponseEntity<MedicalRecord> getMedicalRecordsByPatient(@PathVariable Long patientId) {
         Optional<Patient> optionalPatient = patientService.getPatientById(patientId);
         if (optionalPatient.isPresent()) {
             Patient patient = optionalPatient.get();
-            List<MedicalRecord> medicalRecords = medicalRecordService.getMedicalRecordsByPatient(patient);
+            MedicalRecord medicalRecords = medicalRecordService.getMedicalRecordsByPatient(patient);
             return ResponseEntity.ok(medicalRecords);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

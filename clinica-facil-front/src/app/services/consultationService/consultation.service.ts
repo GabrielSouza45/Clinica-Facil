@@ -16,7 +16,7 @@ export class ConsultationService extends CrudService<Consultation>{
     private toastr: ToastrService,
     private http: HttpClient
   ) {
-    super('/api/consultations', http, toastr);
+    super('/consultas', http, toastr);
   }
 
   getAll(){
@@ -56,8 +56,8 @@ export class ConsultationService extends CrudService<Consultation>{
     return this.doPut(`/edit/${consultationId}`, updatedConsultation);
   }
 
-  createConsultation(medicalRecordId: number, consultation: Consultation){
-    return this.doPost(`/add/${medicalRecordId}`, consultation)
+  createConsultation(consultation: Consultation){
+    return this.doPost('/add', consultation)
       .pipe(
         tap(() => {
           this.toastr.success("Cadastrado com sucesso.")

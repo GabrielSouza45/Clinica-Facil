@@ -10,7 +10,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 @Entity(name = "medical_record")
 @Table(name = "medical_record")
 @EqualsAndHashCode(of = "id")
-public class MedicalRecord {
+public class
+MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

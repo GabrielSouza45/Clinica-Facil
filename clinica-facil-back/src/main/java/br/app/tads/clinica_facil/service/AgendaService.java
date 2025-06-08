@@ -47,8 +47,9 @@ public class AgendaService {
         if (start == null || end == null || end.isBefore(start)) {
             return responseBuilder.build("Intervalo de datas inválido", HttpStatus.BAD_REQUEST);
         }
-        List<Agenda> agendas = agendaRepository.findByStartDateTimeBetween(start, end);
-        return responseBuilder.build(agendas, HttpStatus.OK);
+
+        List<Doctor> doctors = agendaRepository.findAvailableDoctors(start, end);
+        return responseBuilder.build(doctors, HttpStatus.OK);
     }
 
     public ResponseEntity<?> createAgenda(Agenda agenda) {

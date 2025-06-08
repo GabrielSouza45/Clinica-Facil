@@ -1,12 +1,21 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { InputPrimarioComponent } from '../../components/input-primario/input-primario.component';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { TablePaginationComponent } from '../../components/back-office/table-pagination/table-pagination.component';
 import { AuthService } from '../../infra/auth.service';
 import { Router } from '@angular/router';
+import { LayoutPrincipalComponent } from "../layout-principal/layout-principal.component";
+import { Doctor } from '../../model/Doctor';
+import { ConsultationService } from '../../services/consultationService/consultation.service';
+import { Consultation } from '../../model/Consultation';
+import ConsultationTable, { consultationTableHeaders } from '../../model/table-exibition/ConsultationTable';
+import { SelectComponent } from "../../components/select/select.component";
+import { Patient } from '../../model/Patient';
+import { PatientService } from '../../services/patientService/patient.service';
+import { DoctorService } from '../../services/doctorService/doctor.service';
 
 @Component({
   selector: 'app-tela-agendamento',
@@ -16,13 +25,15 @@ import { Router } from '@angular/router';
     ReactiveFormsModule,
     InputPrimarioComponent,
     ModalComponent,
-    TablePaginationComponent
+    TablePaginationComponent,
+    LayoutPrincipalComponent,
+    SelectComponent
   ],
   templateUrl: './tela-agendamento.component.html',
   styleUrls: ['./tela-agendamento.component.css']
 })
 export class TelaAgendamentoComponent {
-  consultas: any[] = [];
+  consultas: ConsultationTable[] = [];
   formConsulta!: FormGroup;
   modalAberto = false;
   isCadastro = true;
@@ -33,18 +44,26 @@ export class TelaAgendamentoComponent {
   isMedico: boolean = false;
   isPaciente: boolean = false;
   today: string = new Date().toISOString().split('T')[0];
+  buscarForm!: FormGroup;
+  doutores: SelectOptions[] = [];
+  pacientes: SelectOptions[] = [];
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private toastr: ToastrService,
     public authService: AuthService,
     private router: Router,
+    private consultationService: ConsultationService,
+    private patientService: PatientService,
+    private doctorService: DoctorService,
   ) {
     this.inicializarFormulario();
     this.carregarConsultas();
     this.usuarioAtual = this.authService.getUserName() || '';
     this.isMedico = this.authService.getUserRole() === 'DOCTOR';
     this.isPaciente = this.authService.getUserRole() === 'PATIENT';
+    this.getDoutoresDisponiveis();
+    this.getPacientes();
   }
 
 
@@ -63,10 +82,11 @@ export class TelaAgendamentoComponent {
     },
   ];
 
+
   inicializarFormulario() {
     this.formConsulta = this.fb.group({
-      patient: ['', Validators.required],
-      doctor: ['', Validators.required],
+      patientId: ['', Validators.required],
+      doctorId: ['', Validators.required],
       date: ['', Validators.required],
       time: ['', Validators.required],
     });
@@ -80,19 +100,12 @@ export class TelaAgendamentoComponent {
     }
   }
 
-  verificarDisponibilidadeMedico(consulta: any): boolean {
-    const consultasConflitantes = this.consultas.filter(c => 
-      c.doctor === consulta.doctor && 
-      c.date === consulta.date &&
-      c.time === consulta.time &&
-      (!this.consultaSelecionada || c.id !== this.consultaSelecionada.id)
-    );
 
-    return consultasConflitantes.length === 0;
-  }
 
-  notificarPaciente(consulta: any) {
-    const mensagem = `Consulta agendada com ${consulta.doctor} para ${consulta.date} às ${consulta.time}`;
+
+
+  notificarPaciente(consulta: Consultation) {
+    const mensagem = `Consulta agendada com ${consulta.doctor} para ${consulta.dateTime}`;
     this.toastr.info(mensagem, 'Notificação');
   }
 
@@ -149,6 +162,8 @@ export class TelaAgendamentoComponent {
   }
 
   confirmarAcao() {
+    console.log(this.formConsulta);
+
     if (this.formConsulta.invalid) {
       this.toastr.warning('Preencha todos os campos corretamente!');
       return;
@@ -158,35 +173,38 @@ export class TelaAgendamentoComponent {
   }
 
   agendarConsulta() {
-    const formValue = this.formConsulta.getRawValue();
-    
-    if (!this.verificarDisponibilidadeMedico(formValue)) {
-      this.toastr.error('O médico não está disponível no horário selecionado');
-      return;
-    }
+    const date = this.formConsulta.get("date")?.value;
+    const time = this.formConsulta.get("time")?.value;
 
-    const novaConsulta = {
-      ...formValue,
-      id: Date.now(),
-      status: 'Agendada',
-      idPatient: this.authService.getIdUser(),
-      idDoctor: null 
-    };
+    const dateTimeString = `${date}T${time}:00`; // formato ISO 8601
 
-    this.consultas.push(novaConsulta);
-    this.toastr.success('Consulta agendada com sucesso!');
-    this.notificarPaciente(novaConsulta);
-    this.modalAberto = false;
-    this.carregarConsultas();
+    const consultation = new Consultation();
+    consultation.doctorId = this.formConsulta.get("doctorId")?.value;
+    consultation.patientId = this.formConsulta.get("patientId")?.value;
+    consultation.dateTime = new Date(dateTimeString);
+
+    // if (!this.verificarDisponibilidadeMedico(formValue)) {
+    //   this.toastr.error('O médico não está disponível no horário selecionado');
+    //   return;
+    // }
+
+    this.consultationService.createConsultation(consultation).subscribe({
+      next: () => {
+        this.toastr.success('Consulta agendada com sucesso!');
+        this.notificarPaciente(consultation);
+        this.modalAberto = false;
+        this.carregarConsultas();
+      }
+    })
   }
 
   reagendarConsulta() {
     const formValue = this.formConsulta.getRawValue();
-    
-    if (!this.verificarDisponibilidadeMedico(formValue)) {
-      this.toastr.error('O médico não está disponível no horário selecionado');
-      return;
-    }
+
+    // if (!this.verificarDisponibilidadeMedico(formValue)) {
+    //   this.toastr.error('O médico não está disponível no horário selecionado');
+    //   return;
+    // }
 
     Object.assign(this.consultaSelecionada, formValue);
     this.toastr.success('Consulta reagendada com sucesso!');
@@ -198,47 +216,65 @@ export class TelaAgendamentoComponent {
     this.authService.logout();
   }
 
-  pageChanged(page: number) {
-    this.pagina = page;
-  }
+
 
   podeEditar(consulta: any): boolean {
     return this.isPaciente && consulta.patient === this.authService.getUserName();
   }
 
   carregarConsultas() {
-    const userName = this.authService.getUserName();
-    const userRole = this.authService.getUserRole();
-
-    // Dados 
-    const mockConsultas = [
-      {
-        id: 1,
-        patient: 'João da Silva',
-        doctor: 'Dra. Ana Lima',
-        date: '2025-06-01',
-        time: '14:00',
-        status: 'Agendada'
-      },
-      {
-        id: 2,
-        patient: 'Maria Clara',
-        doctor: 'Dr. Carlos Souza',
-        date: '2025-06-02',
-        time: '09:00',
-        status: 'Agendada'
+    this.consultationService.getAll().subscribe({
+      next: (response: Consultation[]) => {
+        this.consultas = response.map((consulta) => ({
+          id: consulta.id,
+          patientName: consulta.patient.name,
+          patientCpf: consulta.patient.cpf,
+          doctorName: consulta.doctor.name,
+          doctorCrm: consulta.doctor.crm,
+          dateTime: consulta.dateTime,
+          speciality: consulta.specialty,
+          status: consulta.status
+        }));
       }
-    ];
-
-    this.consultas = mockConsultas.filter(c => 
-      (userRole === 'DOCTOR' && c.doctor === userName) ||
-      (userRole === 'PATIENT' && c.patient === userName)
-    );
-
-    this.totalItens = this.consultas.length;
+    })
   }
 
   irParaLogin(): void {
     this.router.navigate(['/login']);
   }
+
+
+  getPacientes(): void {
+
+    this.patientService.getAllPatientsActives().subscribe({
+      next: (response: Patient[]) => {
+        response.map((paciente) => {
+          const option = new SelectOptions();
+          option.text = paciente.name + ", CPF: " + paciente.cpf;
+          option.value = Number(paciente.id);
+
+          this.pacientes.push(option);
+        });
+      }
+    });
+  }
+
+  getDoutoresDisponiveis(): void {
+    this.doctorService.getAllDoctors().subscribe({
+      next: (response: Doctor[]) => {
+        response.map((doutor) => {
+          const option = new SelectOptions();
+          option.text = doutor.name + ", CRM: " + doutor.crm;
+          option.value = Number(doutor.id);
+
+          this.doutores.push(option);
+        });
+      }
+    });
+  }
+}
+
+class SelectOptions {
+  text!: string;
+  value!: number;
 }

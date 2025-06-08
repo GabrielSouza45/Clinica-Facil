@@ -40,6 +40,8 @@ public class PatientService {
             return responseBuilder.build("Email já cadastrado", HttpStatus.UNAUTHORIZED);
 
         patient.setStatus(Status.ACTIVE);
+        patient.setPassword(new BCryptPasswordEncoder().encode(patient.getPassword()));
+
         Patient saved = patientRepository.save(patient);
         MedicalRecord medicalRecord = new MedicalRecord(saved);
         medicalRecordRepository.save(medicalRecord);

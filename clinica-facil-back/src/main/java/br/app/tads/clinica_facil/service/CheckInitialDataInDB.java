@@ -1,18 +1,15 @@
 package br.app.tads.clinica_facil.service;
 
-import br.app.tads.clinica_facil.model.Admin;
-import br.app.tads.clinica_facil.model.Doctor;
-import br.app.tads.clinica_facil.model.Patient;
+import br.app.tads.clinica_facil.model.*;
 import br.app.tads.clinica_facil.model.enums.Status;
-import br.app.tads.clinica_facil.repository.AdminRepository;
-import br.app.tads.clinica_facil.repository.DoctorRepository;
-import br.app.tads.clinica_facil.repository.PatientRepository;
+import br.app.tads.clinica_facil.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -25,6 +22,10 @@ public class CheckInitialDataInDB implements CommandLineRunner {
     private DoctorRepository doctorRepository;
     @Autowired
     private PatientRepository patientRepository;
+    @Autowired
+    private AgendaRepository agendaRepository;
+    @Autowired
+    private MedicalRecordRepository medicalRecordRepository;
 
     private final String STANDARD_ADMIN_MAIL = "admin@admin.com";
     private final String STANDARD_DOCTOR_MAIL = "doctor@standard.com";
@@ -66,7 +67,15 @@ public class CheckInitialDataInDB implements CommandLineRunner {
                 "123456789",
                 Status.ACTIVE
         );
-        doctorRepository.save(doctor);
+        Doctor d = doctorRepository.save(doctor);
+
+//        Agenda agenda = new Agenda();
+//        agenda.setAvailable(true);
+//        agenda.setDoctor(d);
+//        agenda.setStartDateTime(LocalDateTime.now());
+//        agenda.setEndDateTime(LocalDateTime.now().plusHours(2));
+//        agendaRepository.save(agenda);
+
         System.out.println("DOCTOR padrão criado!");
     }
 
@@ -81,7 +90,11 @@ public class CheckInitialDataInDB implements CommandLineRunner {
                 "12674811021",
                 Status.ACTIVE
         );
-        patientRepository.save(patient);
+        Patient saved = patientRepository.save(patient);
+
+        MedicalRecord medicalRecord = new MedicalRecord(saved);
+        medicalRecordRepository.save(medicalRecord);
+
         System.out.println("PATIENT padrão criado!");
     }
 }

@@ -1,4 +1,5 @@
-import { Status } from "./enums/Status";
+import { Status } from "../enums/Status";
+
 
 export interface UserTable{
   id: number;

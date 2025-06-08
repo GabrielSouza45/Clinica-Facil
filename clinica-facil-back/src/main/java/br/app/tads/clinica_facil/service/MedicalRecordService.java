@@ -18,13 +18,13 @@ public class MedicalRecordService {
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
 
-    public List<MedicalRecord> getMedicalRecordsByPatient(Patient patient) {
+    public MedicalRecord getMedicalRecordsByPatient(Patient patient) {
         return medicalRecordRepository.findByPatient(patient);
     }
 
     public MedicalRecord createMedicalRecord(Patient patient) {
-        List<MedicalRecord> existing = medicalRecordRepository.findByPatient(patient);
-        if (!existing.isEmpty()) {
+        MedicalRecord existing = medicalRecordRepository.findByPatient(patient);
+        if (existing != null) {
             throw new IllegalStateException("O paciente já possui um prontuário.");
         }
         MedicalRecord medicalRecord = new MedicalRecord(patient);

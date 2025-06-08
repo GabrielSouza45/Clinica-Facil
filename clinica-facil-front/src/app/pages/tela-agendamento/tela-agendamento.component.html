@@ -1,102 +1,75 @@
-<div class="layout">
-  <!-- Menu lateral -->
-  <aside class="menu-lateral">
-    <div class="logo">Clinica Fácil</div>
-
-    <div class="opcao-menu selecionado">
-      {{ isMedico ? 'Minhas Consultas' : 'Agendar Consulta' }}
-    </div>
-
-    <div class="usuario-logado" *ngIf="authService.isAuthenticated(); else loginLink">
-      <div>
-        {{ usuarioAtual }} <br />
-        <span class="tipo-usuario">
-          {{ isMedico ? 'Médico' : 'Paciente' }}
-        </span>
+<app-layout-principal>
+  <div class="conteudo-principal">
+    <div class="superior">
+      <div class="cabecalho-sem-pesquisa">
+        <h2>
+          {{ isMedico ? "Minhas Consultas Agendadas" : "Consultas Agendadas" }}
+        </h2>
       </div>
-      <br />
-      <span class="logout" (click)="logout()">Sair</span>
-    </div>
-
-    <ng-template #loginLink>
-      <div class="usuario-logado" (click)="irParaLogin()">
-        Perfil <br />
-        <span class="tipo-usuario">Clique para logar</span>
+      <div class="botoes d-flex w-100">
+        <button
+          class="botao-cadastrar col-4 gap-3"
+          (click)="abrirModalAgendamento()"
+          [disabled]="!authService.isAuthenticated() || isMedico"
+        >
+          Nova consulta
+          <i class="bi bi-plus-circle-fill button"></i>
+        </button>
       </div>
-    </ng-template>
-  </aside>
-
-  <!-- Conteúdo principal -->
-  <main class="conteudo">
-    <div class="cabecalho-consultas">
-      <h2>{{ isMedico ? 'Minhas Consultas Agendadas' : 'Minhas Consultas' }}</h2>
-      <button 
-        class="botao-agendar" 
-        (click)="abrirModalAgendamento()"
-        [disabled]="!authService.isAuthenticated() || isMedico">
-        + Nova Consulta
-      </button>
     </div>
-
-    <div *ngIf="!authService.isAuthenticated()" class="aviso-login">
-      <p>Por favor, faça login para visualizar e agendar consultas.</p>
+    <div class="inferior" inferior>
+      <app-table-pagination [dados]="consultas"> </app-table-pagination>
     </div>
+  </div>
 
-    <div *ngIf="authService.isAuthenticated() && consultas.length === 0" class="sem-consultas">
-      <p>{{ isMedico ? 'Nenhuma consulta agendada para você.' : 'Nenhuma consulta agendada.' }}</p>
-    </div>
+  <!-- Modal de agendamento/reagendamento -->
+  <app-modal
+    *ngIf="modalAberto"
+    class="modal-cadastro"
+    (fecharModal)="fecharModal()"
+    (submit)="confirmarAcao()"
+    [tituloModal]="isCadastro ? 'Agendar Consulta' : 'Reagendar Consulta'"
+    textoBotao="Confirmar"
+  >
+    <form [formGroup]="formConsulta" class="form-cadastro">
+      <app-select
+        *ngIf="pacientes"
+        class="input-padrao"
+        label="Paciente:"
+        selectName="patient"
+        [options]="pacientes"
+        (valueChange)="formConsulta.get('patientId')?.setValue($event)"
+      >
+      </app-select>
 
-    <app-table-pagination
-      *ngIf="authService.isAuthenticated() && consultas.length > 0"
-      [dados]="consultas"
-      [acoes]="acoes"
-      [totalItens]="totalItens"
-      (pageChangeEvent)="pageChanged($event)">
-    </app-table-pagination>
+      <app-select
+        *ngIf="doutores"
+        class="input-padrao"
+        label="Médico:"
+        selectName="doctor"
+        [options]="doutores"
+        (valueChange)="formConsulta.get('doctorId')?.setValue($event)"
+      >
+      </app-select>
 
-    <!-- Modal de agendamento/reagendamento -->
-    <app-modal
-      *ngIf="modalAberto"
-      class="modal-cadastro"
-      (fecharModal)="fecharModal()"
-      (submit)="confirmarAcao()"
-      [tituloModal]="isCadastro ? 'Agendar Consulta' : 'Reagendar Consulta'"
-      textoBotao="Confirmar">
-      
-      <form [formGroup]="formConsulta" class="form-cadastro">
-        <app-input-primario
-          class="input-padrao"
-          [addLabel]="true"
-          label="Paciente:"
-          formControlName="patient"
-          [disabled]="true">
-        </app-input-primario>
+      <app-input-primario
+        class="input-padrao"
+        [addLabel]="true"
+        label="Data:"
+        type="date"
+        formControlName="date"
+        [min]="today"
+      >
+      </app-input-primario>
 
-        <app-input-primario
-          class="input-padrao"
-          [addLabel]="true"
-          label="Médico:"
-          formControlName="doctor"
-          [disabled]="false">
-        </app-input-primario>
-
-        <app-input-primario
-          class="input-padrao"
-          [addLabel]="true"
-          label="Data:"
-          type="date"
-          formControlName="date"
-          [min]="today">
-        </app-input-primario>
-
-        <app-input-primario
-          class="input-padrao"
-          [addLabel]="true"
-          label="Hora:"
-          type="time"
-          formControlName="time">
-        </app-input-primario>
-      </form>
-    </app-modal>
-  </main>
-</div>
+      <app-input-primario
+        class="input-padrao"
+        [addLabel]="true"
+        label="Hora:"
+        type="time"
+        formControlName="time"
+      >
+      </app-input-primario>
+    </form>
+  </app-modal>
+</app-layout-principal>

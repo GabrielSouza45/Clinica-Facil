@@ -42,6 +42,13 @@ public class Consultation {
     @Column(name = "status")
     private StatusConsultation status;
 
+    @Transient
+    private Patient patient;
+    @Transient
+    private Doctor doctor;
+
+
+
     public Consultation(Long id, LocalDateTime dateTime, Long patientId, Long doctorId, String specialty, 
                         Report report, MedicalRecord medicalRecord, StatusConsultation status) {
         this.id = id;
@@ -119,5 +126,21 @@ public class Consultation {
 
     public void setStatus(StatusConsultation status) {
         this.status = status;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
     }
 }

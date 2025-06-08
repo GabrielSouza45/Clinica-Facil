@@ -11,8 +11,7 @@ import java.util.Optional;
 @Repository
 public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Long> {
     
-    List<MedicalRecord> findByPatient(Patient patient);
+    MedicalRecord findByPatient(Patient patient);
 
-    Optional<MedicalRecord> findFirstByPatient(Patient patient);
 
 }

@@ -39,11 +39,27 @@
   align-items: center;
   justify-content: center;
   margin: auto;
+  transition: 0.4s;
+  background-color: var(--cor-secundaria);
+  border-radius: 15px;
+  color: #fff;
+  height: 50px;
+
   .button {
     color: var(--cor-primaria);
-    font-size: 40px;
+    font-size: 25px;
   }
 }
+
+.botao-cadastrar:hover {
+    transition: 0.4s;
+    cursor: pointer;
+    background-color: var(--cor-primaria);
+
+    i {
+      color: var(--cor-secundaria);
+    }
+  }
 
 hr {
   color: var(--cor-primaria);
@@ -58,24 +74,8 @@ h4 {
 i {
   color: #fff;
 }
-i:hover{
+i:hover {
   cursor: pointer;
-}
-
-.botao-cadastrar {
-  transition: 0.4s;
-  background-color: var(--cor-secundaria);
-  border-radius: 15px;
-  color: #fff;
-}
-.botao-cadastrar:hover {
-  transition: 0.4s;
-  cursor: pointer;
-  background-color: var(--cor-primaria);
-
-  i{
-    color: var(--cor-secundaria);
-  }
 }
 
 .inferior {
@@ -106,16 +106,3 @@ i:hover{
   padding: 30px;
   overflow-y: auto;
 }
-
-/*
-.botoes{
-  display: flex;
-  flex-direction: row;
-
-  .botao-cadastrar{
-    border: solid #fff;
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
-  }
-} */

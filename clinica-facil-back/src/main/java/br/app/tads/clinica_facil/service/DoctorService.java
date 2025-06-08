@@ -34,6 +34,7 @@ public class DoctorService {
             return responseBuilder.build("Email já cadastrado", HttpStatus.UNAUTHORIZED);
 
         doctor.setStatus(Status.ACTIVE);
+        doctor.setPassword(new BCryptPasswordEncoder().encode(doctor.getPassword()));
         Doctor saved = doctorRepository.save(doctor);
         return responseBuilder.build(saved, HttpStatus.CREATED);
     }

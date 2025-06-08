@@ -1,20 +1,16 @@
-import { UsuariosService } from './../../services/usersService/usuarios.service';
-import { ReportService } from './../../services/reportService/report.service';
-import { Usuario } from './../../model/Usuario';
-import { Component } from '@angular/core';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Component } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { Group } from '../../../app/model/enums/Group';
+import { TablePaginationComponent } from "../../components/back-office/table-pagination/table-pagination.component";
 import { InputPrimarioComponent } from '../../components/input-primario/input-primario.component';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { PatientService } from '../../services/patientService/patient.service';
+import { UserTable } from '../../model/table-exibition/UserTable';
 import { DoctorService } from '../../services/doctorService/doctor.service';
+import { PatientService } from '../../services/patientService/patient.service';
 import { LayoutPrincipalComponent } from "../layout-principal/layout-principal.component";
-import { TablePaginationComponent } from "../../components/back-office/table-pagination/table-pagination.component";
-import { log } from 'console';
-import { UserTable } from '../../model/UserTable';
+import { UsuariosService } from './../../services/usersService/usuarios.service';
 
 @Component({
   selector: 'app-cadastrar-usuarios',
