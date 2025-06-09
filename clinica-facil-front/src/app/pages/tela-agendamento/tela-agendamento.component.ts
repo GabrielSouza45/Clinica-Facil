@@ -1,18 +1,26 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { InputPrimarioComponent } from '../../components/input-primario/input-primario.component';
 import { ModalComponent } from '../../components/modal/modal.component';
 import { TablePaginationComponent } from '../../components/back-office/table-pagination/table-pagination.component';
 import { AuthService } from '../../infra/auth.service';
 import { Router } from '@angular/router';
-import { LayoutPrincipalComponent } from "../layout-principal/layout-principal.component";
+import { LayoutPrincipalComponent } from '../layout-principal/layout-principal.component';
 import { Doctor } from '../../model/Doctor';
 import { ConsultationService } from '../../services/consultationService/consultation.service';
 import { Consultation } from '../../model/Consultation';
-import ConsultationTable, { consultationTableHeaders } from '../../model/table-exibition/ConsultationTable';
-import { SelectComponent } from "../../components/select/select.component";
+import ConsultationTable, {
+  consultationTableHeaders,
+} from '../../model/table-exibition/ConsultationTable';
+import { SelectComponent } from '../../components/select/select.component';
 import { Patient } from '../../model/Patient';
 import { PatientService } from '../../services/patientService/patient.service';
 import { DoctorService } from '../../services/doctorService/doctor.service';
@@ -27,13 +35,14 @@ import { DoctorService } from '../../services/doctorService/doctor.service';
     ModalComponent,
     TablePaginationComponent,
     LayoutPrincipalComponent,
-    SelectComponent
+    SelectComponent,
   ],
   templateUrl: './tela-agendamento.component.html',
-  styleUrls: ['./tela-agendamento.component.css']
+  styleUrls: ['./tela-agendamento.component.css'],
 })
 export class TelaAgendamentoComponent {
   consultas: ConsultationTable[] = [];
+  colunas = consultationTableHeaders;
   formConsulta!: FormGroup;
   modalAberto = false;
   isCadastro = true;
@@ -55,7 +64,7 @@ export class TelaAgendamentoComponent {
     private router: Router,
     private consultationService: ConsultationService,
     private patientService: PatientService,
-    private doctorService: DoctorService,
+    private doctorService: DoctorService
   ) {
     this.inicializarFormulario();
     this.carregarConsultas();
@@ -66,22 +75,20 @@ export class TelaAgendamentoComponent {
     this.getPacientes();
   }
 
-
   acoes = [
     {
       nome: 'Reagendar',
       icone: 'bi bi-calendar-check',
       funcao: (item: any) => this.abrirModalReagendamento(item),
-      mostrar: (item: any) => this.isPaciente && this.podeEditar(item)
+      mostrar: (item: any) => this.isPaciente && this.podeEditar(item),
     },
     {
       nome: 'Cancelar',
       icone: 'bi bi-x-circle',
       funcao: (item: any) => this.cancelarConsulta(item),
-      mostrar: (item: any) => this.isPaciente && this.podeEditar(item)
+      mostrar: (item: any) => this.isPaciente && this.podeEditar(item),
     },
   ];
-
 
   inicializarFormulario() {
     this.formConsulta = this.fb.group({
@@ -99,10 +106,6 @@ export class TelaAgendamentoComponent {
       this.formConsulta.get('patient')?.disable();
     }
   }
-
-
-
-
 
   notificarPaciente(consulta: Consultation) {
     const mensagem = `Consulta agendada com ${consulta.doctor} para ${consulta.dateTime}`;
@@ -150,8 +153,12 @@ export class TelaAgendamentoComponent {
       return;
     }
 
-    if (confirm(`Tem certeza que deseja cancelar a consulta com ${consulta.doctor} marcada para ${consulta.date}?`)) {
-      this.consultas = this.consultas.filter(c => c.id !== consulta.id);
+    if (
+      confirm(
+        `Tem certeza que deseja cancelar a consulta com ${consulta.doctor} marcada para ${consulta.date}?`
+      )
+    ) {
+      this.consultas = this.consultas.filter((c) => c.id !== consulta.id);
       this.toastr.success('Consulta cancelada com sucesso!');
       this.totalItens = this.consultas.length;
     }
@@ -173,14 +180,14 @@ export class TelaAgendamentoComponent {
   }
 
   agendarConsulta() {
-    const date = this.formConsulta.get("date")?.value;
-    const time = this.formConsulta.get("time")?.value;
+    const date = this.formConsulta.get('date')?.value;
+    const time = this.formConsulta.get('time')?.value;
 
     const dateTimeString = `${date}T${time}:00`; // formato ISO 8601
 
     const consultation = new Consultation();
-    consultation.doctorId = this.formConsulta.get("doctorId")?.value;
-    consultation.patientId = this.formConsulta.get("patientId")?.value;
+    consultation.doctorId = this.formConsulta.get('doctorId')?.value;
+    consultation.patientId = this.formConsulta.get('patientId')?.value;
     consultation.dateTime = new Date(dateTimeString);
 
     // if (!this.verificarDisponibilidadeMedico(formValue)) {
@@ -194,8 +201,8 @@ export class TelaAgendamentoComponent {
         this.notificarPaciente(consultation);
         this.modalAberto = false;
         this.carregarConsultas();
-      }
-    })
+      },
+    });
   }
 
   reagendarConsulta() {
@@ -216,46 +223,48 @@ export class TelaAgendamentoComponent {
     this.authService.logout();
   }
 
-
-
   podeEditar(consulta: any): boolean {
-    return this.isPaciente && consulta.patient === this.authService.getUserName();
+    return (
+      this.isPaciente && consulta.patient === this.authService.getUserName()
+    );
   }
 
   carregarConsultas() {
+    console.log(this.colunas);
+
     this.consultationService.getAll().subscribe({
       next: (response: Consultation[]) => {
-        this.consultas = response.map((consulta) => ({
-          id: consulta.id,
-          patientName: consulta.patient.name,
-          patientCpf: consulta.patient.cpf,
-          doctorName: consulta.doctor.name,
-          doctorCrm: consulta.doctor.crm,
-          dateTime: consulta.dateTime,
-          speciality: consulta.specialty,
-          status: consulta.status
-        }));
-      }
-    })
+        if (response.length > 0) {
+          this.consultas = response.map((consulta) => ({
+            id: consulta.id,
+            patientName: consulta.patient.name,
+            patientCpf: consulta.patient.cpf,
+            doctorName: consulta.doctor.name,
+            doctorCrm: consulta.doctor.crm,
+            dateTime: consulta.dateTime,
+            speciality: consulta.specialty,
+            status: consulta.status,
+          }));
+        }
+      },
+    });
   }
 
   irParaLogin(): void {
     this.router.navigate(['/login']);
   }
 
-
   getPacientes(): void {
-
     this.patientService.getAllPatientsActives().subscribe({
       next: (response: Patient[]) => {
         response.map((paciente) => {
           const option = new SelectOptions();
-          option.text = paciente.name + ", CPF: " + paciente.cpf;
+          option.text = paciente.name + ', CPF: ' + paciente.cpf;
           option.value = Number(paciente.id);
 
           this.pacientes.push(option);
         });
-      }
+      },
     });
   }
 
@@ -264,12 +273,12 @@ export class TelaAgendamentoComponent {
       next: (response: Doctor[]) => {
         response.map((doutor) => {
           const option = new SelectOptions();
-          option.text = doutor.name + ", CRM: " + doutor.crm;
+          option.text = doutor.name + ', CRM: ' + doutor.crm;
           option.value = Number(doutor.id);
 
           this.doutores.push(option);
         });
-      }
+      },
     });
   }
 }

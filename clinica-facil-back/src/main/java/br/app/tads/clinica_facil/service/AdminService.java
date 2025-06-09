@@ -33,6 +33,7 @@ public class AdminService {
         if (adminRepository.existsByEmail(admin.getEmail()))
             return responseBuilder.build("Email já cadastrado", HttpStatus.UNAUTHORIZED);
 
+        admin.setPassword(new BCryptPasswordEncoder().encode(admin.getPassword()));
         admin.setStatus(Status.ACTIVE);
         Admin saved = adminRepository.save(admin);
         return responseBuilder.build(saved, HttpStatus.CREATED);

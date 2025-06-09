@@ -14,7 +14,7 @@ import { AuthService } from '../../../infra/auth.service';
 })
 export class MenuLateralComponent {
   grupo: string = '';
-  administrador: boolean = true;
+  administrador: boolean = false;
   doutor: boolean = false;
   paciente: boolean = false;
   userLogado: string = this.capitalizarPrimeiraLetra(sessionStorage.getItem('name') || "Nao Logado");

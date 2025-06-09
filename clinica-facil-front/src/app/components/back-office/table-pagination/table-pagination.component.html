@@ -6,6 +6,7 @@
           <th scope="col" *ngFor="let coluna of colunas" style="text-transform: capitalize;">
             {{ coluna != "id" ? coluna : "#" }}
           </th>
+          <th *ngIf="acoes.length > 0">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -13,7 +14,7 @@
           <td *ngFor="let coluna of colunas">
             {{ coluna === 'valor' ? (item[coluna] | currency:'BRL':'symbol':'1.2-2') : (item[coluna] == null ? '' : item[coluna]) }}
           </td>
-          <!-- <td class="acoes">
+          <td class="acoes" *ngIf="acoes.length>0">
             <div class="items" *ngIf="item.id != null">
               <ng-container *ngFor="let acao of acoes">
                 <i
@@ -24,7 +25,7 @@
                 </i>
               </ng-container>
             </div>
-          </td> -->
+          </td>
         </tr>
         <!-- Adicione linhas vazias para preencher a tabela -->
         <tr *ngFor="let i of [].constructor(10 - dados.length)">

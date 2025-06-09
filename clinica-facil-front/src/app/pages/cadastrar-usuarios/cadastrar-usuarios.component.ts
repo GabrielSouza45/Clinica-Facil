@@ -1,3 +1,4 @@
+import { UserTable } from './../../model/table-exibition/UserTable';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,7 +7,6 @@ import { Group } from '../../../app/model/enums/Group';
 import { TablePaginationComponent } from "../../components/back-office/table-pagination/table-pagination.component";
 import { InputPrimarioComponent } from '../../components/input-primario/input-primario.component';
 import { ModalComponent } from '../../components/modal/modal.component';
-import { UserTable } from '../../model/table-exibition/UserTable';
 import { DoctorService } from '../../services/doctorService/doctor.service';
 import { PatientService } from '../../services/patientService/patient.service';
 import { LayoutPrincipalComponent } from "../layout-principal/layout-principal.component";
