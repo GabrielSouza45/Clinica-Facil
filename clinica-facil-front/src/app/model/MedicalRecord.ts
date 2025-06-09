@@ -9,5 +9,4 @@ export class MedicalRecord{
   consultations?: Consultation[];
   exams?: Exam[];
   revenues?: Revenue[];
-  prescriptions: boolean;
 }

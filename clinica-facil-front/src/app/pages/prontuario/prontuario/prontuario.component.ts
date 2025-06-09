@@ -1,5 +1,5 @@
-import { Component, NgModule, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray, FormGroupName, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { MedicalRecord } from '../../../model/MedicalRecord';
 import { Patient } from '../../../model/Patient';
@@ -9,24 +9,11 @@ import { PatientService } from '../../../services/patientService/patient.service
 import { CommonModule } from '@angular/common';
 import { LayoutPrincipalComponent } from "../../layout-principal/layout-principal.component";
 
-interface PrescriptionForm {
-  medication: string;
-  dosage: string;
-  instructions: string;
-}
-
-interface ExamForm {
-  name: string;
-  date: string;
-  results: string;
-}
-
 @Component({
   selector: 'app-prontuario',
-  standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
+    CommonModule,
     LayoutPrincipalComponent
 ],
   templateUrl: './prontuario.component.html',
@@ -40,7 +27,12 @@ export class ProntuarioComponent implements OnInit {
   editando: boolean = false;
   criando: boolean = false;
   visualizando: boolean = false;
-  StatusConsultation : any;
+  
+  statusOptions = [
+    { value: StatusConsultation.PENDING, label: 'Pendente' },
+    { value: StatusConsultation.FINISHED, label: 'Finalizado' },
+    { value: StatusConsultation.CANCELLED, label: 'Cancelado' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -50,25 +42,24 @@ export class ProntuarioComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.novoProntuario();
     this.initForm();
     this.loadPatients();
     this.loadMedicalRecords();
   }
 
   initForm(): void {
-    this.formProntuario = this.fb.group({
-      patientId: [null, Validators.required],
-      consultation: this.fb.group({
-        dateTime: ['', Validators.required],
-        specialty: ['', Validators.required],
-        report: ['', Validators.required],
-        status: [StatusConsultation.PENDING, Validators.required]
-      }),
-      exams: this.fb.array([this.createExamGroup()]),
-      prescriptions: this.fb.array([this.createPrescriptionGroup()])
-    });
-  }
+  this.formProntuario = this.fb.group({
+    patientId: [null, [Validators.required, Validators.pattern(/^[1-9]\d*$/)]],
+    consultation: this.fb.group({
+      dateTime: ['', [Validators.required]],
+      specialty: ['', [Validators.required, Validators.minLength(3)]],
+      report: ['', [Validators.required, Validators.minLength(10)]],
+      status: [StatusConsultation.PENDING, Validators.required]
+    }),
+    exams: this.fb.array([]),
+    prescriptions: this.fb.array([])
+  });
+}
 
   createExamGroup(): FormGroup {
     return this.fb.group({
@@ -99,9 +90,7 @@ export class ProntuarioComponent implements OnInit {
   }
 
   removeExamItem(index: number): void {
-    if (this.exams.length > 1) {
-      this.exams.removeAt(index);
-    }
+    this.exams.removeAt(index);
   }
 
   addPrescriptionItem(): void {
@@ -109,22 +98,30 @@ export class ProntuarioComponent implements OnInit {
   }
 
   removePrescriptionItem(index: number): void {
-    if (this.prescriptions.length > 1) {
-      this.prescriptions.removeAt(index);
-    }
+    this.prescriptions.removeAt(index);
   }
 
   loadPatients(): void {
     this.patientService.getAllPatients().subscribe({
-      next: (patients) => this.patients = patients,
-      error: () => this.toastr.error('Erro ao carregar pacientes')
+      next: (patients) => {
+        this.patients = patients;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar pacientes:', error);
+        this.toastr.error('Erro ao carregar pacientes');
+      }
     });
   }
 
   loadMedicalRecords(): void {
     this.medicalRecordService.getAll().subscribe({
-      next: (records) => this.medicalRecords = records,
-      error: () => this.toastr.error('Erro ao carregar prontuários')
+      next: (records) => {
+        this.medicalRecords = records;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar prontuários:', error);
+        this.toastr.error('Erro ao carregar prontuários');
+      }
     });
   }
 
@@ -158,7 +155,7 @@ export class ProntuarioComponent implements OnInit {
     this.formProntuario.patchValue({
       patientId: record.patient?.id || null,
       consultation: {
-        dateTime: primeiraConsulta?.dateTime || '',
+        dateTime: primeiraConsulta?.dateTime ? this.formatDateTimeForInput(primeiraConsulta.dateTime) : '',
         specialty: primeiraConsulta?.specialty || '',
         report: primeiraConsulta?.report?.body || '',
         status: primeiraConsulta?.status || StatusConsultation.PENDING
@@ -170,7 +167,6 @@ export class ProntuarioComponent implements OnInit {
       record.exams.forEach(exam => {
         this.exams.push(this.fb.group({
           name: exam.name || '',
-          date: exam.date || '',
           results: exam.results || ''
         }));
       });
@@ -192,25 +188,62 @@ export class ProntuarioComponent implements OnInit {
     }
   }
 
+  private formatDateTimeForInput(dateTime: any): string {
+    const date = new Date(dateTime);
+    return date.toISOString().slice(0, 16);
+  }
+
+  private formatDateForInput(date: any): string {
+    const dateObj = new Date(date);
+    return dateObj.toISOString().split('T')[0];
+  }
+
   salvarProntuario(): void {
-    if (this.formProntuario.invalid) {
-      this.toastr.warning('Preencha todos os campos obrigatórios!');
-      return;
-    }
+  
+  const formValue = this.formProntuario.value;
+  const patientId = formValue.patientId;
 
-    const formValue = this.formProntuario.value;
-    const patient = this.patients.find(p => p.id === formValue.patientId);
+  if (this.editando && this.selectedMedicalRecord?.id) {
+    this.medicalRecordService.updateMedicalRecordWithConsultation(
+      this.selectedMedicalRecord.id,
+      formValue
+    ).subscribe({
+      next: () => {
+        this.toastr.success('Prontuário atualizado com sucesso!');
+        this.loadMedicalRecords();
+        this.limparFormulario();
+      },
+      error: (error) => {
+        console.error('Erro:', error);
+        this.toastr.error('Erro ao atualizar prontuário');
+      }
+    });
+  } else {
+    this.medicalRecordService.createMedicalRecordWithConsultation(
+      patientId,
+      formValue
+    ).subscribe({
+      next: () => {
+        this.toastr.success('Prontuário criado com sucesso!');
+        this.loadMedicalRecords();
+        this.limparFormulario();
+      },
+      error: (error) => {
+        console.error('Erro:', error);
+        this.toastr.error('Erro ao criar prontuário');
+      }
+    });
+  }
+}
 
-    if (!patient || !patient.id) {
-      this.toastr.error('Paciente inválido ou não encontrado');
-      return;
-    }
-
-    if (this.editando && this.selectedMedicalRecord?.id) {
-      this.atualizarProntuario(formValue, patient);
-    } else {
-      this.criarNovoProntuario(formValue, patient);
-    }
+  private markFormGroupTouched(formGroup: FormGroup | FormArray) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.markFormGroupTouched(control);
+      }
+    });
   }
 
   private atualizarProntuario(formValue: any, patient: Patient): void {
@@ -219,7 +252,7 @@ export class ProntuarioComponent implements OnInit {
     const updatedData = {
       patientId: patient.id,
       consultation: {
-        id: this.selectedMedicalRecord.consultations?.[0]?.id, // Mantém o ID se existir
+        id: this.selectedMedicalRecord.consultations?.[0]?.id,
         dateTime: formValue.consultation.dateTime,
         specialty: formValue.consultation.specialty,
         status: formValue.consultation.status,
@@ -228,8 +261,8 @@ export class ProntuarioComponent implements OnInit {
           type: 'Consulta'
         }
       },
-      exams: this.exams.value,
-      revenues: this.prescriptions.value.map((p: any) => ({
+      exams: formValue.exams,
+      revenues: formValue.prescriptions.map((p: any) => ({
         medications: p.medication,
         dosage: p.dosage,
         recommendations: p.instructions,
@@ -238,7 +271,7 @@ export class ProntuarioComponent implements OnInit {
     };
 
     this.medicalRecordService.updateMedicalRecordWithConsultation(
-      this.selectedMedicalRecord.id, // Usa o ID do registro médico
+      this.selectedMedicalRecord.id,
       updatedData
     ).subscribe({
       next: () => {
@@ -246,64 +279,61 @@ export class ProntuarioComponent implements OnInit {
         this.loadMedicalRecords();
         this.limparFormulario();
       },
-      error: () => this.toastr.error('Erro ao atualizar prontuário')
-    });
-}
-
-private criarNovoProntuario(formValue: any, patient: Patient): void {
-    // Verificação explícita do patient.id
-    if (patient?.id === undefined) {
-        this.toastr.error('ID do paciente não disponível');
-        return;
-    }
-
-    const consultationData = {
-        patientId: patient.id, // Agora garantido que não é undefined
-        consultation: {
-            dateTime: formValue.consultation.dateTime,
-            specialty: formValue.consultation.specialty,
-            status: formValue.consultation.status,
-            report: {
-                body: formValue.consultation.report,
-                type: 'Consulta'
-            }
-        },
-        exams: this.exams.value,
-        revenues: this.prescriptions.value.map((p: any) => ({
-            medications: p.medication,
-            dosage: p.dosage,
-            recommendations: p.instructions,
-            dateTime: new Date().toISOString()
-        }))
-    };
-
-    this.medicalRecordService.createMedicalRecordWithConsultation(
-        patient.id, // TypeScript agora sabe que é number
-        consultationData
-    ).subscribe({
-        next: () => {
-            this.toastr.success('Prontuário criado com sucesso!');
-            this.loadMedicalRecords();
-            this.limparFormulario();
-        },
-        error: () => {
-            this.toastr.error('Erro ao criar prontuário');
-        }
-    });
-    this.medicalRecordService.createMedicalRecordWithConsultation(
-      patient?.id,
-      consultationData
-    ).subscribe({
-      next: () => {
-        this.toastr.success('Prontuário criado com sucesso!');
-        this.loadMedicalRecords();
-        this.limparFormulario();
-      },
-      error: () => {
-        this.toastr.error('Erro ao criar prontuário');
+      error: (error) => {
+        console.error('Erro ao atualizar prontuário:', error);
+        this.toastr.error('Erro ao atualizar prontuário');
       }
     });
+  }
+
+  private criarNovoProntuario(formValue: any, patient: Patient): void {
+     
+  if (!patient.id) {
+    this.toastr.error('ID do paciente não disponível');
+    return;
+  }
+
+  const newRecordData = {
+    patientId: patient.id,
+    consultation: {
+      dateTime: formValue.consultation.dateTime,
+      specialty: formValue.consultation.specialty,
+      status: formValue.consultation.status,
+      report: {
+        body: formValue.consultation.report,
+        type: 'Consulta'
+      }
+    },
+    exams: formValue.exams,
+    revenues: formValue.prescriptions.map((p: any) => ({
+      medications: p.medication,
+      dosage: p.dosage,
+      recommendations: p.instructions,
+      dateTime: new Date().toISOString()
+    }))
+  };
+
+  console.log('Dados formatados para API:', newRecordData);
+
+  this.medicalRecordService.createMedicalRecordWithConsultation(
+    patient.id,
+    newRecordData
+  ).subscribe({
+    next: (response) => {
+      console.log('Resposta da API:', response);
+      this.toastr.success('Prontuário criado com sucesso!');
+      this.loadMedicalRecords();
+      this.limparFormulario();
+    },
+    error: (error) => {
+      console.error('Erro completo:', error);
+      console.error('Mensagem de erro:', error.message);
+      console.error('Erro ao criar prontuário:', error.error);
+      this.toastr.error(`Erro ao criar prontuário: ${error.error?.message || error.message}`);
+    }
+  });
 }
+
   excluirProntuario(id: number): void {
     if (!confirm('Tem certeza que deseja excluir este prontuário?')) return;
 
@@ -316,7 +346,10 @@ private criarNovoProntuario(formValue: any, patient: Patient): void {
           this.limparFormulario();
         }
       },
-      error: () => this.toastr.error('Erro ao excluir prontuário')
+      error: (error) => {
+        console.error('Erro ao excluir prontuário:', error);
+        this.toastr.error('Erro ao excluir prontuário');
+      }
     });
   }
 
@@ -345,6 +378,6 @@ private criarNovoProntuario(formValue: any, patient: Patient): void {
 
   getStatusText(status?: StatusConsultation): string {
     if (status === undefined) return 'Desconhecido';
-    return StatusConsultation[status] || 'Desconhecido';
+    return this.statusOptions.find(opt => opt.value === status)?.label || 'Desconhecido';
   }
 }

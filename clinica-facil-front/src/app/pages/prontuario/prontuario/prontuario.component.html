@@ -42,7 +42,6 @@
         <ul *ngIf="record.exams && record.exams.length > 0; else noExams">
           <li *ngFor="let exam of record.exams">
             <strong>Nome:</strong> {{ exam.name }} |
-            <strong>Data:</strong> {{ exam.date | date:'short' }} |
             <strong>Resultados:</strong> {{ exam.results }}
           </li>
         </ul>
@@ -71,109 +70,117 @@
       <button class="btn btn-primary" (click)="novoProntuario()">Novo Prontuário</button>
     </div>
 
-    <!-- FORMULÁRIO DE PRONTUÁRIO -->
-    <form *ngIf="editando || criando" [formGroup]="formProntuario" (ngSubmit)="salvarProntuario()" class="form-prontuario p-3">
-      <h3>{{ editando ? 'Editar Prontuário' : 'Novo Prontuário' }}</h3>
+    <!-- FORMULÁRIO DE PRONTUÁRIO (oculto por padrão) -->
+    <div *ngIf="editando || criando" class="card p-3 mb-3">
+      <form [formGroup]="formProntuario" (ngSubmit)="salvarProntuario()" class="form-prontuario">
+        <h3>{{ editando ? 'Editar Prontuário' : 'Novo Prontuário' }}</h3>
 
-      <!-- Seleção do Paciente -->
-      <div class="mb-3">
-        <label for="patientId" class="form-label">Paciente:</label>
-        <select id="patientId" formControlName="patientId" class="form-select" required>
-          <option [value]="null" disabled selected>Selecione um paciente</option>
-          <option *ngFor="let p of patients" [value]="p.id">{{ p.name }}</option>
-        </select>
-      </div>
-
-      <!-- Grupo de Consulta -->
-      <div formGroupName="consultation" class="mb-3 card p-3">
-        <h5>Consulta</h5>
+        <!-- Seleção do Paciente -->
         <div class="mb-3">
-          <label for="consultationDateTime" class="form-label">Data da Consulta:</label>
-          <input type="datetime-local" id="consultationDateTime" formControlName="dateTime" class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-          <label for="specialty" class="form-label">Especialidade:</label>
-          <input type="text" id="specialty" formControlName="specialty" class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-          <label for="status" class="form-label">Status:</label>
-          <select id="status" formControlName="status" class="form-select" required>
-            <option [value]="StatusConsultation.PENDING">Pendente</option>
-            <option [value]="StatusConsultation.FINISHED">Finalizado</option>
-            <option [value]="StatusConsultation.CANCELLED">Cancelado</option>
+          <label for="patientId" class="form-label">Paciente:</label>
+          <select id="patientId" formControlName="patientId" class="form-select" required>
+            <option [value]="null" disabled selected>Selecione um paciente</option>
+            <option *ngFor="let p of patients" [value]="p.id">{{ p.name }}</option>
           </select>
         </div>
 
-        <div class="mb-3">
-          <label for="report" class="form-label">Relatório:</label>
-          <textarea id="report" formControlName="report" class="form-control" rows="3" required></textarea>
-        </div>
-      </div>
+        <!-- Grupo de Consulta -->
+        <div formGroupName="consultation" class="mb-3 card p-3">
+          <h5>Consulta</h5>
+          <div class="mb-3">
+            <label for="consultationDateTime" class="form-label">Data da Consulta:</label>
+            <input type="datetime-local" id="consultationDateTime" formControlName="dateTime" class="form-control" required />
+          </div>
 
-      <!-- EXAMES -->
-      <div formArrayName="exams" class="mb-3">
-        <h5>Exames</h5>
-        <div *ngFor="let exam of exams.controls; let i = index" [formGroupName]="i" class="card mb-2 p-3">
+          <div class="mb-3">
+            <label for="specialty" class="form-label">Especialidade:</label>
+            <input type="text" id="specialty" formControlName="specialty" class="form-control" required />
+          </div>
+
+          <div class="mb-3">
+            <label for="status" class="form-label">Status:</label>
+            <select id="status" formControlName="status" class="form-select" required>
+              <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="report" class="form-label">Relatório:</label>
+            <textarea id="report" formControlName="report" class="form-control" rows="3" required></textarea>
+          </div>
+        </div>
+
+        <!-- EXAMES -->
+        <div formArrayName="exams" class="mb-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6>Exame {{ i + 1 }}</h6>
-            <button type="button" class="btn btn-danger btn-sm" (click)="removeExamItem(i)" *ngIf="exams.length > 1">
-              Remover Exame
+            <h5>Exames</h5>
+            <button type="button" class="btn btn-primary btn-sm" (click)="addExamItem()">
+              <i class="bi bi-plus"></i> Adicionar Exame
             </button>
           </div>
           
-          <div class="mb-2">
-            <label class="form-label">Nome do Exame:</label>
-            <input type="text" formControlName="name" class="form-control" required />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Data:</label>
-            <input type="date" formControlName="date" class="form-control" required />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Resultados:</label>
-            <textarea formControlName="results" class="form-control" rows="3" required></textarea>
+          <div *ngFor="let exam of exams.controls; let i = index" [formGroupName]="i" class="card mb-2 p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6>Exame {{ i + 1 }}</h6>
+              <button type="button" class="btn btn-danger btn-sm" (click)="removeExamItem(i)">
+                <i class="bi bi-trash"></i> Remover
+              </button>
+            </div>
+            
+            <div class="mb-2">
+              <label class="form-label">Nome do Exame:</label>
+              <input type="text" formControlName="name" class="form-control" required />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Data:</label>
+              <input type="date" formControlName="date" class="form-control" required />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Resultados:</label>
+              <textarea formControlName="results" class="form-control" rows="3" required></textarea>
+            </div>
           </div>
         </div>
-        <button type="button" class="btn btn-primary btn-sm" (click)="addExamItem()">
-          Adicionar Exame
-        </button>
-      </div>
 
-      <!-- RECEITAS -->
-      <div formArrayName="prescriptions" class="mb-3">
-        <h5>Receitas Médicas</h5>
-        <div *ngFor="let prescription of prescriptions.controls; let i = index" [formGroupName]="i" class="card mb-2 p-3">
+        <!-- RECEITAS -->
+        <div formArrayName="prescriptions" class="mb-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6>Receita {{ i + 1 }}</h6>
-            <button type="button" class="btn btn-danger btn-sm" (click)="removePrescriptionItem(i)" *ngIf="prescriptions.length > 1">
-              Remover Receita
+            <h5>Receitas Médicas</h5>
+            <button type="button" class="btn btn-primary btn-sm" (click)="addPrescriptionItem()">
+              <i class="bi bi-plus"></i> Adicionar Receita
             </button>
           </div>
           
-          <div class="mb-2">
-            <label class="form-label">Medicamento:</label>
-            <input type="text" formControlName="medication" class="form-control" required />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Dosagem:</label>
-            <input type="text" formControlName="dosage" class="form-control" required />
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Instruções:</label>
-            <textarea formControlName="instructions" class="form-control" rows="3" required></textarea>
+          <div *ngFor="let prescription of prescriptions.controls; let i = index" [formGroupName]="i" class="card mb-2 p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6>Receita {{ i + 1 }}</h6>
+              <button type="button" class="btn btn-danger btn-sm" (click)="removePrescriptionItem(i)">
+                <i class="bi bi-trash"></i> Remover
+              </button>
+            </div>
+            
+            <div class="mb-2">
+              <label class="form-label">Medicamento:</label>
+              <input type="text" formControlName="medication" class="form-control" required />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Dosagem:</label>
+              <input type="text" formControlName="dosage" class="form-control" required />
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Instruções:</label>
+              <textarea formControlName="instructions" class="form-control" rows="3" required></textarea>
+            </div>
           </div>
         </div>
-        <button type="button" class="btn btn-primary btn-sm" (click)="addPrescriptionItem()">
-          Adicionar Receita
-        </button>
-      </div>
 
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success">{{ editando ? 'Atualizar Prontuário' : 'Salvar Prontuário' }}</button>
-        <button type="button" class="btn btn-secondary" (click)="limparFormulario()">Cancelar</button>
-      </div>
-    </form>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success">
+            {{ editando ? 'Atualizar Prontuário' : 'Salvar Prontuário' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="limparFormulario()">Cancelar</button>
+        </div>
+      </form>
+    </div>
   </div>
 </app-layout-principal>

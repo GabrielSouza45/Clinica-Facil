@@ -1,6 +1,7 @@
 package br.app.tads.clinica_facil.controller;
 
 import br.app.tads.clinica_facil.model.*;
+import br.app.tads.clinica_facil.model.dtos.MedicalRecordRequests;
 import br.app.tads.clinica_facil.service.MedicalRecordService;
 import br.app.tads.clinica_facil.service.PatientService;
 
@@ -72,15 +73,13 @@ public class MedicalRecordController {
         }
     }
 
-    @PostMapping("/create/{patientId}")
+    @PostMapping("/create-with-data/{patientId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DOCTOR')")
-    @CrossOrigin(origins = "*", allowedHeaders = "*")
-    public ResponseEntity<MedicalRecord> createMedicalRecordAndAddConsultation(
+    public ResponseEntity<MedicalRecord> createMedicalRecordWithData(
             @PathVariable Long patientId,
-            @RequestBody Consultation consultation) {
+            @RequestBody MedicalRecordRequests request) {
 
         Optional<Patient> optionalPatient = patientService.getPatientById(patientId);
-
         if (optionalPatient.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -90,14 +89,36 @@ public class MedicalRecordController {
             MedicalRecord medicalRecord = medicalRecordService.createMedicalRecord(optionalPatient.get());
 
             // Adiciona a consulta
-            MedicalRecord updatedRecord = medicalRecordService.addConsultationToMedicalRecord(
+            Consultation consultation = new Consultation();
+            consultation.setDateTime(request.getConsultation().getDateTime());
+            consultation.setSpecialty(request.getConsultation().getSpecialty());
+            consultation.setStatus(request.getConsultation().getStatus());
+            consultation.setReport(request.getConsultation().getReport());
+
+            medicalRecord = medicalRecordService.addConsultationToMedicalRecord(
                     medicalRecord.getId(),
                     consultation
             );
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(updatedRecord);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // paciente já possui prontuário
+            // Adiciona exames
+            for (Exam exam : request.getExams()) {
+                medicalRecord = medicalRecordService.addExamToMedicalRecord(
+                        medicalRecord.getId(),
+                        exam
+                );
+            }
+
+            // Adiciona receitas
+            for (Revenue revenue : request.getRevenues()) {
+                medicalRecord = medicalRecordService.addRevenueToMedicalRecord(
+                        medicalRecord.getId(),
+                        revenue
+                );
+            }
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(medicalRecord);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
