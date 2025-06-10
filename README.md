@@ -11,6 +11,17 @@
 
 ---
 
+## Integrantes
+
+- Antonio Joaquim da Silva Neto  
+- Caio Figueiredo Rosa  
+- Gabriel Freitas Souza  
+- Lucas Tadeu Almeida Martins de Oliveira  
+- Marco Antonio Silva Mafra  
+- Tadeu Henrique Moura Carvalho  
+
+---
+
 ## Descrição
 
 Projeto de sistema para clínica médica, desenvolvido com backend em Java 21 e frontend em Angular 19.  
